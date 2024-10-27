@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,41 +12,69 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi.models;
 
-import com.google.gson.annotations.SerializedName;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.kubernetes.client.openapi.models.V1LabelSelector;
+import io.kubernetes.client.openapi.models.V1NetworkPolicyEgressRule;
+import io.kubernetes.client.openapi.models.V1NetworkPolicyIngressRule;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/** NetworkPolicySpec provides the specification of a NetworkPolicy */
-@ApiModel(description = "NetworkPolicySpec provides the specification of a NetworkPolicy")
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.kubernetes.client.openapi.JSON;
+
+/**
+ * NetworkPolicySpec provides the specification of a NetworkPolicy
+ */
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class V1NetworkPolicySpec {
   public static final String SERIALIZED_NAME_EGRESS = "egress";
-
   @SerializedName(SERIALIZED_NAME_EGRESS)
-  private List<V1NetworkPolicyEgressRule> egress = null;
+  private List<V1NetworkPolicyEgressRule> egress = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_INGRESS = "ingress";
-
   @SerializedName(SERIALIZED_NAME_INGRESS)
-  private List<V1NetworkPolicyIngressRule> ingress = null;
+  private List<V1NetworkPolicyIngressRule> ingress = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_POD_SELECTOR = "podSelector";
-
   @SerializedName(SERIALIZED_NAME_POD_SELECTOR)
   private V1LabelSelector podSelector;
 
   public static final String SERIALIZED_NAME_POLICY_TYPES = "policyTypes";
-
   @SerializedName(SERIALIZED_NAME_POLICY_TYPES)
-  private List<String> policyTypes = null;
+  private List<String> policyTypes = new ArrayList<>();
+
+  public V1NetworkPolicySpec() {
+  }
 
   public V1NetworkPolicySpec egress(List<V1NetworkPolicyEgressRule> egress) {
-
     this.egress = egress;
     return this;
   }
@@ -59,20 +87,11 @@ public class V1NetworkPolicySpec {
     return this;
   }
 
-  /**
-   * List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there
-   * are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR
-   * if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose
-   * podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing
-   * traffic (and serves solely to ensure that the pods it selects are isolated by default). This
-   * field is beta-level in 1.8
-   *
+   /**
+   * egress is a list of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
    * @return egress
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1NetworkPolicyEgressRule> getEgress() {
     return egress;
   }
@@ -81,8 +100,8 @@ public class V1NetworkPolicySpec {
     this.egress = egress;
   }
 
-  public V1NetworkPolicySpec ingress(List<V1NetworkPolicyIngressRule> ingress) {
 
+  public V1NetworkPolicySpec ingress(List<V1NetworkPolicyIngressRule> ingress) {
     this.ingress = ingress;
     return this;
   }
@@ -95,20 +114,11 @@ public class V1NetworkPolicySpec {
     return this;
   }
 
-  /**
-   * List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there
-   * are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR
-   * if the traffic source is the pod&#39;s local node, OR if the traffic matches at least one
-   * ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this
-   * field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure
-   * that the pods it selects are isolated by default)
-   *
+   /**
+   * ingress is a list of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod&#39;s local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
    * @return ingress
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1NetworkPolicyIngressRule> getIngress() {
     return ingress;
   }
@@ -117,18 +127,17 @@ public class V1NetworkPolicySpec {
     this.ingress = ingress;
   }
 
-  public V1NetworkPolicySpec podSelector(V1LabelSelector podSelector) {
 
+  public V1NetworkPolicySpec podSelector(V1LabelSelector podSelector) {
     this.podSelector = podSelector;
     return this;
   }
 
-  /**
+   /**
    * Get podSelector
-   *
    * @return podSelector
-   */
-  @ApiModelProperty(required = true, value = "")
+  **/
+  @jakarta.annotation.Nonnull
   public V1LabelSelector getPodSelector() {
     return podSelector;
   }
@@ -137,8 +146,8 @@ public class V1NetworkPolicySpec {
     this.podSelector = podSelector;
   }
 
-  public V1NetworkPolicySpec policyTypes(List<String> policyTypes) {
 
+  public V1NetworkPolicySpec policyTypes(List<String> policyTypes) {
     this.policyTypes = policyTypes;
     return this;
   }
@@ -151,24 +160,11 @@ public class V1NetworkPolicySpec {
     return this;
   }
 
-  /**
-   * List of rule types that the NetworkPolicy relates to. Valid options are
-   * [\&quot;Ingress\&quot;], [\&quot;Egress\&quot;], or [\&quot;Ingress\&quot;,
-   * \&quot;Egress\&quot;]. If this field is not specified, it will default based on the existence
-   * of Ingress or Egress rules; policies that contain an Egress section are assumed to affect
-   * Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect
-   * Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [
-   * \&quot;Egress\&quot; ]. Likewise, if you want to write a policy that specifies that no egress
-   * is allowed, you must specify a policyTypes value that include \&quot;Egress\&quot; (since such
-   * a policy would not include an Egress section and would otherwise default to just [
-   * \&quot;Ingress\&quot; ]). This field is beta-level in 1.8
-   *
+   /**
+   * policyTypes is a list of rule types that the NetworkPolicy relates to. Valid options are [\&quot;Ingress\&quot;], [\&quot;Egress\&quot;], or [\&quot;Ingress\&quot;, \&quot;Egress\&quot;]. If this field is not specified, it will default based on the existence of ingress or egress rules; policies that contain an egress section are assumed to affect egress, and all policies (whether or not they contain an ingress section) are assumed to affect ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ \&quot;Egress\&quot; ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include \&quot;Egress\&quot; (since such a policy would not include an egress section and would otherwise default to just [ \&quot;Ingress\&quot; ]). This field is beta-level in 1.8
    * @return policyTypes
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of rule types that the NetworkPolicy relates to. Valid options are [\"Ingress\"], [\"Egress\"], or [\"Ingress\", \"Egress\"]. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ \"Egress\" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include \"Egress\" (since such a policy would not include an Egress section and would otherwise default to just [ \"Ingress\" ]). This field is beta-level in 1.8")
+  **/
+  @jakarta.annotation.Nullable
   public List<String> getPolicyTypes() {
     return policyTypes;
   }
@@ -177,8 +173,10 @@ public class V1NetworkPolicySpec {
     this.policyTypes = policyTypes;
   }
 
+
+
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -186,10 +184,10 @@ public class V1NetworkPolicySpec {
       return false;
     }
     V1NetworkPolicySpec v1NetworkPolicySpec = (V1NetworkPolicySpec) o;
-    return Objects.equals(this.egress, v1NetworkPolicySpec.egress)
-        && Objects.equals(this.ingress, v1NetworkPolicySpec.ingress)
-        && Objects.equals(this.podSelector, v1NetworkPolicySpec.podSelector)
-        && Objects.equals(this.policyTypes, v1NetworkPolicySpec.policyTypes);
+    return Objects.equals(this.egress, v1NetworkPolicySpec.egress) &&
+        Objects.equals(this.ingress, v1NetworkPolicySpec.ingress) &&
+        Objects.equals(this.podSelector, v1NetworkPolicySpec.podSelector) &&
+        Objects.equals(this.policyTypes, v1NetworkPolicySpec.policyTypes);
   }
 
   @Override
@@ -210,12 +208,143 @@ public class V1NetworkPolicySpec {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("egress");
+    openapiFields.add("ingress");
+    openapiFields.add("podSelector");
+    openapiFields.add("policyTypes");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("podSelector");
+  }
+
+ /**
+  * Validates the JSON Element and throws an exception if issues found
+  *
+  * @param jsonElement JSON Element
+  * @throws IOException if the JSON Element is invalid with respect to V1NetworkPolicySpec
+  */
+  public static void validateJsonElement(JsonElement jsonElement) throws IOException {
+      if (jsonElement == null) {
+        if (!V1NetworkPolicySpec.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in V1NetworkPolicySpec is not found in the empty JSON string", V1NetworkPolicySpec.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Map.Entry<String, JsonElement> entry : entries) {
+        if (!V1NetworkPolicySpec.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `V1NetworkPolicySpec` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : V1NetworkPolicySpec.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+        }
+      }
+        JsonObject jsonObj = jsonElement.getAsJsonObject();
+      if (jsonObj.get("egress") != null && !jsonObj.get("egress").isJsonNull()) {
+        JsonArray jsonArrayegress = jsonObj.getAsJsonArray("egress");
+        if (jsonArrayegress != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("egress").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `egress` to be an array in the JSON string but got `%s`", jsonObj.get("egress").toString()));
+          }
+
+          // validate the optional field `egress` (array)
+          for (int i = 0; i < jsonArrayegress.size(); i++) {
+            V1NetworkPolicyEgressRule.validateJsonElement(jsonArrayegress.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("ingress") != null && !jsonObj.get("ingress").isJsonNull()) {
+        JsonArray jsonArrayingress = jsonObj.getAsJsonArray("ingress");
+        if (jsonArrayingress != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("ingress").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `ingress` to be an array in the JSON string but got `%s`", jsonObj.get("ingress").toString()));
+          }
+
+          // validate the optional field `ingress` (array)
+          for (int i = 0; i < jsonArrayingress.size(); i++) {
+            V1NetworkPolicyIngressRule.validateJsonElement(jsonArrayingress.get(i));
+          };
+        }
+      }
+      // validate the required field `podSelector`
+      V1LabelSelector.validateJsonElement(jsonObj.get("podSelector"));
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("policyTypes") != null && !jsonObj.get("policyTypes").isJsonNull() && !jsonObj.get("policyTypes").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `policyTypes` to be an array in the JSON string but got `%s`", jsonObj.get("policyTypes").toString()));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!V1NetworkPolicySpec.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'V1NetworkPolicySpec' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<V1NetworkPolicySpec> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(V1NetworkPolicySpec.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<V1NetworkPolicySpec>() {
+           @Override
+           public void write(JsonWriter out, V1NetworkPolicySpec value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public V1NetworkPolicySpec read(JsonReader in) throws IOException {
+             JsonElement jsonElement = elementAdapter.read(in);
+             validateJsonElement(jsonElement);
+             return thisAdapter.fromJsonTree(jsonElement);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of V1NetworkPolicySpec given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of V1NetworkPolicySpec
+  * @throws IOException if the JSON string is invalid with respect to V1NetworkPolicySpec
+  */
+  public static V1NetworkPolicySpec fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, V1NetworkPolicySpec.class);
+  }
+
+ /**
+  * Convert an instance of V1NetworkPolicySpec to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }

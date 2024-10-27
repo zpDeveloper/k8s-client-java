@@ -39,6 +39,7 @@ import okio.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.BaseConstructor;
@@ -178,7 +179,7 @@ public class Yaml {
         try {
           list.add(modelMapper((Map<String, Object>) object));
         } catch (ClassCastException ex) {
-          logger.error("Unexpected exception while casting: " + ex);
+          logger.error("Unexpected exception while casting: {}", ex);
         }
       }
     }
@@ -269,6 +270,7 @@ public class Yaml {
 
   public static class CustomRepresenter extends Representer {
     public CustomRepresenter() {
+      super(new DumperOptions());
       this.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
       this.representers.put(IntOrString.class, new RepresentIntOrString());
       this.representers.put(byte[].class, new RepresentByteArray());
@@ -363,6 +365,9 @@ public class Yaml {
         Object javaBean, Property property, Object propertyValue, Tag customTag) {
       // returning null for a null property value means we won't output it in the Yaml
       if (propertyValue == null) {
+        return null;
+      }
+      if (propertyValue instanceof List<?> && ((List<?>)propertyValue).size() == 0) {
         return null;
       }
       return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);

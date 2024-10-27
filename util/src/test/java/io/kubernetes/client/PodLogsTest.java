@@ -18,14 +18,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Container;
@@ -41,23 +40,25 @@ import java.util.Arrays;
 import okhttp3.Call;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** Tests for the PodLogs helper class */
-public class PodLogsTest {
+class PodLogsTest {
   private String namespace;
   private String podName;
   private String container;
 
   private ApiClient client;
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(options().dynamicPort()).build();
 
-  @Before
-  public void setup() throws IOException {
-    client = new ClientBuilder().setBasePath("http://localhost:" + wireMockRule.port()).build();
+  @BeforeEach
+  void setup() {
+    client = new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
 
     namespace = "default";
     podName = "apod";
@@ -65,7 +66,7 @@ public class PodLogsTest {
   }
 
   @Test
-  public void testNotFound() throws ApiException, IOException {
+  void notFound() throws ApiException, IOException {
     V1Pod pod =
         new V1Pod()
             .metadata(new V1ObjectMeta().name(podName).namespace(namespace))
@@ -73,7 +74,7 @@ public class PodLogsTest {
                 new V1PodSpec()
                     .containers(Arrays.asList(new V1Container().name(container).image("nginx"))));
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces/" + namespace + "/pods/" + podName + "/log"))
             .willReturn(
                 aResponse()
@@ -86,11 +87,11 @@ public class PodLogsTest {
     try {
       logs.streamNamespacedPodLog(pod);
     } catch (ApiException ex) {
-      assertEquals(404, ex.getCode());
+      assertThat(ex.getCode()).isEqualTo(404);
       thrown = true;
     }
-    assertEquals(thrown, true);
-    wireMockRule.verify(
+    assertThat(thrown).isTrue();
+    apiServer.verify(
         getRequestedFor(
                 urlPathEqualTo("/api/v1/namespaces/" + namespace + "/pods/" + podName + "/log"))
             .withQueryParam("container", equalTo(container))
@@ -101,7 +102,7 @@ public class PodLogsTest {
   }
 
   @Test
-  public void testStream() throws ApiException, IOException {
+  void stream() throws ApiException, IOException {
     V1Pod pod =
         new V1Pod()
             .metadata(new V1ObjectMeta().name(podName).namespace(namespace))
@@ -111,7 +112,7 @@ public class PodLogsTest {
 
     String content = "this is some\n content for \n various logs \n done";
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces/" + namespace + "/pods/" + podName + "/log"))
             .willReturn(
                 aResponse()
@@ -122,7 +123,7 @@ public class PodLogsTest {
     PodLogs logs = new PodLogs(client);
     InputStream is = logs.streamNamespacedPodLog(pod);
 
-    wireMockRule.verify(
+    apiServer.verify(
         getRequestedFor(
                 urlPathEqualTo("/api/v1/namespaces/" + namespace + "/pods/" + podName + "/log"))
             .withQueryParam("container", equalTo(container))
@@ -133,11 +134,11 @@ public class PodLogsTest {
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     Streams.copy(is, bos);
-    assertEquals(content, bos.toString());
+    assertThat(bos).hasToString(content);
   }
 
   @Test
-  public void testResponseClosedOnError() throws ApiException, IOException {
+  void responseClosedOnError() throws ApiException, IOException {
     V1Pod pod =
         new V1Pod()
             .metadata(new V1ObjectMeta().name(podName).namespace(namespace))
@@ -150,7 +151,7 @@ public class PodLogsTest {
     Response mockResponse = mock(Response.class);
 
     when(mockClient.escapeString(any())).thenReturn("foo");
-    when(mockClient.buildCall(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+    when(mockClient.buildCall(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(mockCall);
     when(mockCall.execute()).thenReturn(mockResponse);
     when(mockResponse.isSuccessful()).thenReturn(false);
@@ -162,11 +163,11 @@ public class PodLogsTest {
     try (InputStream ignored = logs.streamNamespacedPodLog(pod)) {
       thrown = false;
     } catch (ApiException ex) {
-      assertEquals(404, ex.getCode());
+      assertThat(ex.getCode()).isEqualTo(404);
       thrown = true;
     }
 
-    assertTrue(thrown);
+    assertThat(thrown).isTrue();
     verify(mockResponse).close();
   }
 }

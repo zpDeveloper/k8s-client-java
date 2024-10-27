@@ -1,30 +1,153 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
+import java.lang.Object;
+import java.lang.String;
+import java.lang.Boolean;
 
-/** Generated */
-public interface V1ValidationRuleFluent<A extends V1ValidationRuleFluent<A>> extends Fluent<A> {
-  public String getMessage();
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1ValidationRuleFluent<A extends V1ValidationRuleFluent<A>> extends BaseFluent<A>{
+  public V1ValidationRuleFluent() {
+  }
+  
+  public V1ValidationRuleFluent(V1ValidationRule instance) {
+    this.copyInstance(instance);
+  }
+  private String fieldPath;
+  private String message;
+  private String messageExpression;
+  private Boolean optionalOldSelf;
+  private String reason;
+  private String rule;
+  
+  protected void copyInstance(V1ValidationRule instance) {
+    instance = (instance != null ? instance : new V1ValidationRule());
+    if (instance != null) {
+          this.withFieldPath(instance.getFieldPath());
+          this.withMessage(instance.getMessage());
+          this.withMessageExpression(instance.getMessageExpression());
+          this.withOptionalOldSelf(instance.getOptionalOldSelf());
+          this.withReason(instance.getReason());
+          this.withRule(instance.getRule());
+        }
+  }
+  
+  public String getFieldPath() {
+    return this.fieldPath;
+  }
+  
+  public A withFieldPath(String fieldPath) {
+    this.fieldPath = fieldPath;
+    return (A) this;
+  }
+  
+  public boolean hasFieldPath() {
+    return this.fieldPath != null;
+  }
+  
+  public String getMessage() {
+    return this.message;
+  }
+  
+  public A withMessage(String message) {
+    this.message = message;
+    return (A) this;
+  }
+  
+  public boolean hasMessage() {
+    return this.message != null;
+  }
+  
+  public String getMessageExpression() {
+    return this.messageExpression;
+  }
+  
+  public A withMessageExpression(String messageExpression) {
+    this.messageExpression = messageExpression;
+    return (A) this;
+  }
+  
+  public boolean hasMessageExpression() {
+    return this.messageExpression != null;
+  }
+  
+  public Boolean getOptionalOldSelf() {
+    return this.optionalOldSelf;
+  }
+  
+  public A withOptionalOldSelf(Boolean optionalOldSelf) {
+    this.optionalOldSelf = optionalOldSelf;
+    return (A) this;
+  }
+  
+  public boolean hasOptionalOldSelf() {
+    return this.optionalOldSelf != null;
+  }
+  
+  public String getReason() {
+    return this.reason;
+  }
+  
+  public A withReason(String reason) {
+    this.reason = reason;
+    return (A) this;
+  }
+  
+  public boolean hasReason() {
+    return this.reason != null;
+  }
+  
+  public String getRule() {
+    return this.rule;
+  }
+  
+  public A withRule(String rule) {
+    this.rule = rule;
+    return (A) this;
+  }
+  
+  public boolean hasRule() {
+    return this.rule != null;
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1ValidationRuleFluent that = (V1ValidationRuleFluent) o;
+    if (!java.util.Objects.equals(fieldPath, that.fieldPath)) return false;
+    if (!java.util.Objects.equals(message, that.message)) return false;
+    if (!java.util.Objects.equals(messageExpression, that.messageExpression)) return false;
+    if (!java.util.Objects.equals(optionalOldSelf, that.optionalOldSelf)) return false;
+    if (!java.util.Objects.equals(reason, that.reason)) return false;
+    if (!java.util.Objects.equals(rule, that.rule)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(fieldPath,  message,  messageExpression,  optionalOldSelf,  reason,  rule,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (fieldPath != null) { sb.append("fieldPath:"); sb.append(fieldPath + ","); }
+    if (message != null) { sb.append("message:"); sb.append(message + ","); }
+    if (messageExpression != null) { sb.append("messageExpression:"); sb.append(messageExpression + ","); }
+    if (optionalOldSelf != null) { sb.append("optionalOldSelf:"); sb.append(optionalOldSelf + ","); }
+    if (reason != null) { sb.append("reason:"); sb.append(reason + ","); }
+    if (rule != null) { sb.append("rule:"); sb.append(rule); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
+  public A withOptionalOldSelf() {
+    return withOptionalOldSelf(true);
+  }
+  
 
-  public A withMessage(String message);
-
-  public Boolean hasMessage();
-
-  public String getRule();
-
-  public A withRule(String rule);
-
-  public Boolean hasRule();
 }

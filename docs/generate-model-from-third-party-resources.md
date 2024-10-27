@@ -10,7 +10,7 @@ and [KubernetesListObject](https://github.com/kubernetes-client/java/blob/master
 ### 1. Fork Upstream Repo
 
 Fork the repository [kubernetes-client/java](https://github.com/kubernetes-client/java)
-so that you can run the github action ["CRD Java Model Generate"](./.github/workflows/generate-crd.yml)
+so that you can run the github action ["CRD Java Model Generate"](/.github/workflows/generate-crd.yml)
 in your forked repo. (Running github action job manually requires "collaborator" access to the repo).
 
 Alternatively, you can also copy-paste the above github action definition to your repo to run it.
@@ -143,7 +143,7 @@ GenericKubernetesApi<V1CronTab, V1CronTabList> crontabClient =
 
 #### Loading generated model from Yaml
 
-In order to make the Yaml codec recognizes the generated model classes, we need to do the registration
+In order to make the Yaml codec recognize the generated model classes, we need to do the registration
 by `ModelMapper`:
 
 ```java

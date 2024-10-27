@@ -12,9 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.event;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.extended.event.legacy.EventLogger;
@@ -25,12 +23,12 @@ import io.kubernetes.client.openapi.models.V1EventSourceBuilder;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1ObjectReferenceBuilder;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class EventLoggerTest {
+class EventLoggerTest {
 
   @Test
-  public void testPatchComputing() {
+  void patchComputing() {
     CoreV1Event event1 =
         new CoreV1EventBuilder()
             .withSource(new V1EventSourceBuilder().build())
@@ -50,11 +48,11 @@ public class EventLoggerTest {
     String aggregatedKey = EventUtils.getAggregatedAndLocalKeyByReason(event1).getRight();
     EventLogger eventLogger = new EventLogger(100, EventUtils::getEventKey);
     MutablePair<CoreV1Event, V1Patch> result1 = eventLogger.observe(event1, aggregatedKey);
-    assertEquals(event1, result1.getLeft());
-    assertNull(result1.getRight());
+    assertThat(result1.getLeft()).isEqualTo(event1);
+    assertThat(result1.getRight()).isNull();
 
     MutablePair<CoreV1Event, V1Patch> result2 = eventLogger.observe(event2, aggregatedKey);
-    assertEquals(event2, result2.getLeft());
-    assertNotNull(result2.getRight());
+    assertThat(result2.getLeft()).isEqualTo(event2);
+    assertThat(result2.getRight()).isNotNull();
   }
 }

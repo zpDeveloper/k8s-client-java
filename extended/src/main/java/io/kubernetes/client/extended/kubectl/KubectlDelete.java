@@ -16,16 +16,29 @@ import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.extended.kubectl.exception.KubectlException;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.util.ModelMapper;
+import io.kubernetes.client.util.generic.options.DeleteOptions;
 import org.apache.commons.lang3.StringUtils;
 
 public class KubectlDelete<ApiType extends KubernetesObject>
-    extends Kubectl.ResourceBuilder<ApiType, KubectlDelete<ApiType>>
-    implements Kubectl.Executable<ApiType> {
+        extends Kubectl.ResourceBuilder<ApiType, KubectlDelete<ApiType>>
+        implements Kubectl.Executable<ApiType> {
+
+  private boolean ignoreNotFound = false;
+  private DeleteOptions deleteOptions;
 
   KubectlDelete(Class<ApiType> apiTypeClass) {
     super(apiTypeClass);
+    this.deleteOptions = new DeleteOptions();
   }
 
+  public KubectlDelete<ApiType> ignoreNotFound(boolean ignore) {
+    this.ignoreNotFound = ignore;
+    return this;
+  }
+  public KubectlDelete<ApiType> deleteOptions(DeleteOptions deleteOptions) {
+    this.deleteOptions = deleteOptions;
+    return this;
+  }
   @Override
   public ApiType execute() throws KubectlException {
     verifyArguments();
@@ -33,15 +46,23 @@ public class KubectlDelete<ApiType extends KubernetesObject>
 
     if (isNamespaced(apiTypeClass)) {
       try {
-        return getGenericApi().delete(namespace, name).throwsApiException().getObject();
+        return getGenericApi().delete(namespace, name,deleteOptions).throwsApiException().getObject();
       } catch (ApiException e) {
-        throw new KubectlException(e);
+        if (ignoreNotFound && e.getCode() == 404) {
+          return null;
+        } else {
+          throw new KubectlException(e);
+        }
       }
     } else {
       try {
-        return getGenericApi().delete(name).throwsApiException().getObject();
+        return getGenericApi().delete(name,deleteOptions).throwsApiException().getObject();
       } catch (ApiException e) {
-        throw new KubectlException(e);
+        if (ignoreNotFound && e.getCode() == 404) {
+          return null;
+        } else {
+          throw new KubectlException(e);
+        }
       }
     }
   }
@@ -59,5 +80,6 @@ public class KubectlDelete<ApiType extends KubernetesObject>
     if (null == name) {
       throw new KubectlException("missing name argument");
     }
+
   }
 }

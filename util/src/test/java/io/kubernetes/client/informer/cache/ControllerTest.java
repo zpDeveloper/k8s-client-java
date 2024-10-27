@@ -12,7 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.informer.cache;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.informer.EventType;
@@ -31,16 +31,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.awaitility.Awaitility;
-import org.hamcrest.core.IsEqual;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class ControllerTest {
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+@ExtendWith(MockitoExtension.class)
+class ControllerTest {
 
   private static final Class<V1Pod> anyApiTypeClass = V1Pod.class;
   private static final long anyFullResyncPeriod = 1000L;
@@ -55,7 +52,7 @@ public class ControllerTest {
   @Mock private BiConsumer<Class<V1Pod>, Throwable> exceptionHandlerMock;
 
   @Test
-  public void testControllerProcessDeltas() {
+  void controllerProcessDeltas() {
 
     AtomicInteger receivingDeltasCount = new AtomicInteger(0);
     V1Pod foo1 = new V1Pod().metadata(new V1ObjectMeta().name("foo1").namespace("default"));
@@ -91,17 +88,15 @@ public class ControllerTest {
       Awaitility.await()
           .pollInterval(Duration.ofSeconds(1))
           .timeout(Duration.ofSeconds(5))
-          .untilAtomic(receivingDeltasCount, IsEqual.equalTo(4));
-      assertEquals(4, receivingDeltasCount.get());
-    } catch (Throwable t) {
-      throw new RuntimeException(t);
+          .until(() -> receivingDeltasCount.get() == 4);
+      assertThat(receivingDeltasCount).hasValue(4);
     } finally {
       controller.stop();
     }
   }
 
   @Test
-  public void testReflectorIsConstructedWithExeptionHandler() {
+  void reflectorIsConstructedWithExeptionHandler() {
     Controller<V1Pod, V1PodList> controller =
         new Controller<>(
             anyApiTypeClass,
@@ -111,15 +106,15 @@ public class ControllerTest {
             resyncFuncMock,
             anyFullResyncPeriod,
             exceptionHandlerMock);
-    assertSame(exceptionHandlerMock, controller.exceptionHandler);
+    assertThat(controller.exceptionHandler).isSameAs(exceptionHandlerMock);
 
     ReflectorRunnable<V1Pod, V1PodList> reflector = controller.newReflector();
 
-    assertSame(exceptionHandlerMock, reflector.exceptionHandler);
+    assertThat(reflector.exceptionHandler).isSameAs(exceptionHandlerMock);
   }
 
   @Test
-  public void testControllerHasNoExceptionHandlerPerDefault() {
+  void controllerHasNoExceptionHandlerPerDefault() {
 
     Controller<V1Pod, V1PodList> controller =
         new Controller<>(
@@ -130,6 +125,6 @@ public class ControllerTest {
             resyncFuncMock,
             anyFullResyncPeriod);
 
-    assertNull(controller.exceptionHandler);
+    assertThat(controller.exceptionHandler).isNull();
   }
 }

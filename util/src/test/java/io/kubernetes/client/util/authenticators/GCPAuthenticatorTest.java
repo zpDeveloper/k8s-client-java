@@ -12,9 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.util.authenticators;
 
-import static org.assertj.core.api.Fail.fail;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -28,12 +26,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class GCPAuthenticatorTest {
+class GCPAuthenticatorTest {
 
   private final String cmdPath = "/usr/lib/google-cloud-sdk/bin/gcloud";
   private final String cmdArgs = "config config-helper --format=json";
@@ -67,24 +64,19 @@ public class GCPAuthenticatorTest {
   private final GoogleCredentials mockGC = Mockito.mock(GoogleCredentials.class);
   private final GCPAuthenticator gcpAuthenticator = new GCPAuthenticator(mockPB, mockGC);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() throws IOException {
     Process mockProcess = Mockito.mock(Process.class);
     Mockito.when(mockProcess.exitValue()).thenReturn(0);
     Mockito.when(mockProcess.getInputStream())
         .thenReturn(new ByteArrayInputStream(fakeExecResult.getBytes(StandardCharsets.UTF_8)));
-    try {
-      Mockito.when(mockPB.command(Mockito.anyList())).thenCallRealMethod();
-      Mockito.when(mockPB.start()).thenReturn(mockProcess);
-      Mockito.when(mockPB.command()).thenCallRealMethod();
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      fail("Unexpected exception: " + ex);
-    }
+    Mockito.when(mockPB.command(Mockito.anyList())).thenCallRealMethod();
+    Mockito.when(mockPB.start()).thenReturn(mockProcess);
+    Mockito.when(mockPB.command()).thenCallRealMethod();
   }
 
   @Test
-  public void testRefresh() {
+  void refresh() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -96,11 +88,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshTrailingWhitespaceInPath() {
+  void refreshTrailingWhitespaceInPath() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -112,11 +104,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshTrailingWhitespaceInArgs() {
+  void refreshTrailingWhitespaceInArgs() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -128,11 +120,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshTrailingWhitespaceInPathAndArgs() {
+  void refreshTrailingWhitespaceInPathAndArgs() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -144,11 +136,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshLeadingWhitespaceInPath() {
+  void refreshLeadingWhitespaceInPath() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -160,11 +152,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshLeadingWhitespaceInArgs() {
+  void refreshLeadingWhitespaceInArgs() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -176,11 +168,11 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshLeadingWhitespaceInPathAndArgs() {
+  void refreshLeadingWhitespaceInPathAndArgs() {
     final Map<String, Object> gcpConfig =
         new HashMap<String, Object>() {
           {
@@ -192,17 +184,17 @@ public class GCPAuthenticatorTest {
         };
     gcpAuthenticator.refresh(gcpConfig);
     List<String> executedCommand = mockPB.command();
-    MatcherAssert.assertThat(executedCommand, is(expectedCommand));
+    assertThat(executedCommand).isEqualTo(expectedCommand);
   }
 
   @Test
-  public void testRefreshApplicationDefaultCredentials() {
+  void refreshApplicationDefaultCredentials() {
     Date fakeTokenExpiryDate = Date.from(Instant.parse(fakeTokenExpiry));
     Mockito.when(mockGC.getAccessToken())
         .thenReturn(new AccessToken(fakeToken, fakeTokenExpiryDate));
     final Map<String, Object> config = new HashMap<String, Object>() {};
     final Map<String, Object> result = gcpAuthenticator.refresh(config);
-    assertEquals(fakeToken, result.get(GCPAuthenticator.ACCESS_TOKEN));
-    assertEquals(fakeTokenExpiryDate, result.get(GCPAuthenticator.EXPIRY));
+    assertThat(result).containsEntry(GCPAuthenticator.ACCESS_TOKEN, fakeToken);
+    assertThat(result).containsEntry(GCPAuthenticator.EXPIRY, fakeTokenExpiryDate);
   }
 }

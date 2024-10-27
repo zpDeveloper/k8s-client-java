@@ -12,29 +12,29 @@ limitations under the License.
 */
 package io.kubernetes.client.apimachinery;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NamespaceNameTest {
+class NamespaceNameTest {
 
   @Test
-  public void testInvalidNamespace() {
+  void invalidNamespace() {
     assertThatThrownBy(() -> new NamespaceName(null, "name"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("namespace must not be null");
   }
 
   @Test
-  public void testInvalidName() {
+  void invalidName() {
     assertThatThrownBy(() -> new NamespaceName("namespace", null))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("name must not be null");
   }
 
   @Test
-  public void testValidNamespaceName() {
-    Assertions.assertThatNoException().isThrownBy(() -> new NamespaceName("namespace", "name"));
+  void validNamespaceName() {
+    assertThatNoException().isThrownBy(() -> new NamespaceName("namespace", "name"));
   }
 }

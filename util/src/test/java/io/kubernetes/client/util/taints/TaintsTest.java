@@ -13,27 +13,25 @@ limitations under the License.
 package io.kubernetes.client.util.taints;
 
 import static io.kubernetes.client.util.taints.Taints.taints;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.openapi.models.V1Node;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TaintsTest {
+class TaintsTest {
   @Test
-  public void testAddTaints() {
+  void addTaints() {
     V1Node node = new V1Node();
     taints(node)
         .addTaint("key1", Taints.Effect.NO_SCHEDULE)
         .addTaint("key2", Taints.Effect.PREFER_NO_SCHEDULE);
 
-    assertNotNull(Taints.findTaint(node, "key1", Taints.Effect.NO_SCHEDULE));
-    assertNotNull(Taints.findTaint(node, "key2", Taints.Effect.PREFER_NO_SCHEDULE));
+    assertThat(Taints.findTaint(node, "key1", Taints.Effect.NO_SCHEDULE)).isNotNull();
+    assertThat(Taints.findTaint(node, "key2", Taints.Effect.PREFER_NO_SCHEDULE)).isNotNull();
   }
 
   @Test
-  public void testRemoveTaints() {
+  void removeTaints() {
     V1Node node = new V1Node();
     taints(node)
         .addTaint("key1", Taints.Effect.NO_SCHEDULE)
@@ -51,19 +49,20 @@ public class TaintsTest {
         // Remove matching
         .removeTaint("key3", Taints.Effect.NO_EXECUTE);
 
-    assertNull(Taints.findTaint(node, "key1", Taints.Effect.NO_SCHEDULE));
-    assertNull(Taints.findTaint(node, "key1", Taints.Effect.PREFER_NO_SCHEDULE));
-    assertNull(Taints.findTaint(node, "key1", Taints.Effect.NO_EXECUTE));
-    assertNull(Taints.findTaint(node, "key3", Taints.Effect.NO_EXECUTE));
-    assertNotNull(Taints.findTaint(node, "key2", Taints.Effect.PREFER_NO_SCHEDULE));
-    assertNotNull(Taints.findTaint(node, "key3", Taints.Effect.NO_SCHEDULE));
+    assertThat(Taints.findTaint(node, "key1", Taints.Effect.NO_SCHEDULE)).isNull();
+    assertThat(Taints.findTaint(node, "key1", Taints.Effect.PREFER_NO_SCHEDULE)).isNull();
+    assertThat(Taints.findTaint(node, "key1", Taints.Effect.NO_EXECUTE)).isNull();
+    assertThat(Taints.findTaint(node, "key3", Taints.Effect.NO_EXECUTE)).isNull();
+    assertThat(Taints.findTaint(node, "key2", Taints.Effect.PREFER_NO_SCHEDULE)).isNotNull();
+    assertThat(Taints.findTaint(node, "key3", Taints.Effect.NO_SCHEDULE)).isNotNull();
   }
 
   @Test
-  public void testNoExecuteTaints() {
+  void noExecuteTaints() {
     V1Node node = new V1Node();
     String effect = "NoExecute";
     taints(node).addTaint("key1", "value1", Taints.Effect.NO_EXECUTE);
-    assertEquals(effect, Taints.findTaint(node, "key1", Taints.Effect.NO_EXECUTE).getEffect());
+    assertThat(Taints.findTaint(node, "key1", Taints.Effect.NO_EXECUTE).getEffect())
+        .isEqualTo(effect);
   }
 }

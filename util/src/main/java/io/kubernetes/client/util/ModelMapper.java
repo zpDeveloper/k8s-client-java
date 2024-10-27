@@ -18,8 +18,11 @@ import io.kubernetes.client.apimachinery.GroupVersionResource;
 import io.kubernetes.client.common.KubernetesListObject;
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.util.exception.IncompleteDiscoveryException;
 import java.io.File;
+
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -31,10 +34,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.apache.commons.lang3.tuple.MutablePair;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +90,10 @@ public class ModelMapper {
    *
    * <p>Note that the the so-called apiGroupVersion equals to the "apiVersion" in the kubenretes
    * resource yamls.
+   *
+   * @deprecated This method is deprecated. Please use the alternative method with the correct
+   *             parameters. For example, use {@link #addModelMap(String, String, String, Class)}
+   *             instead.
    */
   @Deprecated
   public static void addModelMap(String apiGroupVersion, String kind, Class<?> clazz) {
@@ -104,6 +113,8 @@ public class ModelMapper {
    * @param version the version
    * @param kind the kind
    * @param clazz the clazz
+   * @deprecated This method is deprecated and will be removed in a future version.
+   *             Use the non-deprecated method(s) instead.
    */
   @Deprecated
   public static void addModelMap(String group, String version, String kind, Class<?> clazz) {
@@ -257,7 +268,13 @@ public class ModelMapper {
       return lastAPIDiscovery;
     }
 
-    Set<Discovery.APIResource> apiResources = discovery.findAll();
+    Set<Discovery.APIResource> apiResources = null;
+    try {
+      apiResources = discovery.findAll();
+    } catch (IncompleteDiscoveryException e) {
+      logger.warn("Error while getting all api resources, some api resources will not be refreshed", e);
+      apiResources = e.getDiscoveredResources();
+    }
 
     for (Discovery.APIResource apiResource : apiResources) {
       for (String version : apiResource.getVersions()) {
@@ -304,12 +321,11 @@ public class ModelMapper {
     return preBuiltClassesByGVK.get(new GroupVersionKind("", version, kind));
   }
 
-  public static GroupVersionKind preBuiltGetGroupVersionKindByClass(Class<?> clazz) {
+  public static Optional<GroupVersionKind> preBuiltGetGroupVersionKindByClass(Class<?> clazz) {
     return preBuiltClassesByGVK.entrySet().stream()
-        .filter(e -> clazz.equals(e.getValue()))
-        .map(e -> e.getKey())
-        .findFirst()
-        .get();
+            .filter(e -> clazz.equals(e.getValue()))
+            .map(Map.Entry::getKey)
+            .findFirst();
   }
 
   /**
@@ -338,20 +354,15 @@ public class ModelMapper {
   }
 
   public static Discovery.APIResource findApiResourceByGroupVersionKind(GroupVersionKind gvk) {
-    // TODO: Create another hash map to make this lookup fast? For now I don't think it matters, but
-    // it's definitely slow.
+    Map<String, Discovery.APIResource> apiResourcesByKey = new HashMap<>();
     for (Discovery.APIResource apiResource : lastAPIDiscovery) {
-      if (!apiResource.getGroup().equals(gvk.getGroup())
-          || !apiResource.getKind().equals(gvk.getKind())) {
-        continue;
-      }
       for (String version : apiResource.getVersions()) {
-        if (version.equals(gvk.getVersion())) {
-          return apiResource;
-        }
+        String key = apiResource.getKind() + "/" + apiResource.getGroup() + "/" + version;
+        apiResourcesByKey.put(key, apiResource);
       }
     }
-    return null;
+    String key = gvk.getKind() + "/" + gvk.getGroup() + "/" + gvk.getVersion();
+    return apiResourcesByKey.get(key);
   }
 
   private static void initApiGroupMap() {
@@ -411,9 +422,7 @@ public class ModelMapper {
       preBuiltClassesByGVK.put(new GroupVersionKind(group, version, kind), clazz);
     }
     if (preBuiltClassesByGVK.size() == 0) {
-      logger.warn(
-          "No kubernetes api model classes found from classloader, "
-              + "this may break automatic api discovery");
+      logger.warn("No kubernetes api model classes found from classloader, " + "this may break automatic api discovery");
     }
   }
 
@@ -427,18 +436,18 @@ public class ModelMapper {
 
   private static Pair<String, String> getApiGroup(String name) {
     return preBuiltApiGroups.entrySet().stream()
-        .filter(e -> name.startsWith(e.getKey()))
-        .map(e -> new MutablePair(e.getValue(), name.substring(e.getKey().length())))
-        .findFirst()
-        .orElse(new MutablePair(null, name));
+            .filter(e -> name.startsWith(e.getKey()))
+            .map(e -> new ImmutablePair<>(e.getValue(), name.substring(e.getKey().length())))
+            .findFirst()
+            .orElse(new ImmutablePair<>(null, name));
   }
 
   private static Pair<String, String> getApiVersion(String name) {
     return preBuiltApiVersions.stream()
-        .filter(v -> name.startsWith(v))
-        .map(v -> new MutablePair(v.toLowerCase(), name.substring(v.length())))
-        .findFirst()
-        .orElse(new MutablePair(null, name));
+            .filter(v -> name.startsWith(v))
+            .map(v -> new ImmutablePair<>(v.toLowerCase(), name.substring(v.length())))
+            .findFirst()
+            .orElse(new ImmutablePair<>(null, name));
   }
 
   static class BiDirectionalMap<K, V> {
@@ -460,49 +469,67 @@ public class ModelMapper {
       return vkMap.get(v);
     }
   }
-
-  private static List<String> getClassNamesFromPackage(ClassLoader classLoader, String pkg)
-      throws IOException {
-
-    URL packageURL;
-    ArrayList<String> names = new ArrayList<String>();
-
+  private static List<String> getClassNamesFromPackage(ClassLoader classLoader, String pkg) throws IOException {
+    ArrayList<String> names = new ArrayList<>();
     String packageName = pkg.replace(".", "/");
-    packageURL = classLoader.getResource(packageName);
+    URL packageURL = classLoader.getResource(packageName);
 
     if (packageURL.getProtocol().equals("jar")) {
-      String jarFileName;
-      JarFile jf;
-      Enumeration<JarEntry> jarEntries;
-      String entryName;
-      jarFileName = URLDecoder.decode(packageURL.getFile(), "UTF-8");
-      jarFileName = jarFileName.substring(5, jarFileName.indexOf("!"));
-      logger.info("Loading classes from jar {}", jarFileName);
-      jf = new JarFile(jarFileName);
-      jarEntries = jf.entries();
-      while (jarEntries.hasMoreElements()) {
-        entryName = jarEntries.nextElement().getName();
-        if (entryName.startsWith(packageName) && entryName.length() > packageName.length() + 5) {
-          entryName = entryName.substring(packageName.length() + 1, entryName.lastIndexOf('.'));
-          names.add(pkg + "." + entryName);
-        }
-      }
-      jf.close();
+      processJarPackage(packageURL, packageName, pkg, names);
     } else {
-      URI uri = URI.create(packageURL.toString());
-      File folder = new File(uri.getPath());
-      File[] contenuti = folder.listFiles();
-      if (contenuti == null) {
-        logger.warn("No files to load found in {}", folder.getPath());
-        return names;
-      }
-      String entryName;
-      for (File actual : contenuti) {
-        entryName = actual.getName();
-        entryName = entryName.substring(0, entryName.lastIndexOf('.'));
-        names.add(pkg + "." + entryName);
-      }
+      processFilePackage(packageURL, pkg, names);
     }
     return names;
+  }
+
+  private static void processJarPackage(URL packageURL, String packageName, String pkg, ArrayList<String> names) throws IOException {
+    String jarFileName = URLDecoder.decode(packageURL.getFile(), "UTF-8");
+    JarFile jf = null;
+    // jar: client in repository; nested: client in a fat jar
+    if (jarFileName.startsWith("jar:") || jarFileName.startsWith("nested:")) {
+      jf = ((JarURLConnection) packageURL.openConnection()).getJarFile();
+    }
+    // file: client is a file in target (unit test)
+    if (jarFileName.startsWith("file:") ) {
+      jarFileName = jarFileName.substring(5, jarFileName.indexOf("!"));
+      jf = new JarFile(jarFileName);
+    }
+    if (jf == null) {
+      logger.error("Loading classes from jar with error packageURL: {}", jarFileName);
+      return;
+    }
+    logger.info("Loading classes from jar {}", jarFileName);
+    Enumeration<JarEntry> jarEntries = jf.entries();
+    while (jarEntries.hasMoreElements()) {
+      processJarEntry(jarEntries.nextElement(), packageName, pkg, names);
+    }
+    jf.close();
+  }
+
+  private static void processJarEntry(JarEntry jarEntry, String packageName, String pkg, ArrayList<String> names) {
+    String entryName = jarEntry.getName();
+    if (entryName.startsWith(packageName) && entryName.length() > packageName.length() + 5) {
+      entryName = entryName.substring(packageName.length() + 1, entryName.lastIndexOf('.'));
+      names.add(pkg + "." + entryName);
+    }
+  }
+
+  private static void processFilePackage(URL packageURL, String pkg, ArrayList<String> names) {
+    URI uri = URI.create(packageURL.toString());
+    File folder = new File(uri.getPath());
+    File[] contenuti = folder.listFiles();
+    if (contenuti == null) {
+      logger.warn("No files to load found in {}", folder.getPath());
+      return;
+    }
+    for (File actual : contenuti) {
+      processFileEntry(actual, pkg, names);
+    }
+  }
+
+  private static void processFileEntry(File actual, String pkg, ArrayList<String> names) {
+    String entryName = actual.getName();
+    entryName = entryName.substring(0, entryName.lastIndexOf('.'));
+    names.add(pkg + "." + entryName);
   }
 }

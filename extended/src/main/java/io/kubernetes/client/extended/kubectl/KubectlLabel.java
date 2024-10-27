@@ -37,6 +37,11 @@ public class KubectlLabel<ApiType extends KubernetesObject>
     return this;
   }
 
+  public KubectlLabel<ApiType> deleteLabel(String key) {
+    this.addingLabels.remove(key);
+    return this;
+  }
+
   @Override
   public ApiType execute() throws KubectlException {
     verifyArguments();

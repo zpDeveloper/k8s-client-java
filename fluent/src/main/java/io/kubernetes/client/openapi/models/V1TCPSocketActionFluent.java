@@ -1,35 +1,89 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
 import io.kubernetes.client.custom.IntOrString;
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
+import java.lang.Object;
+import java.lang.String;
 
-/** Generated */
-public interface V1TCPSocketActionFluent<A extends V1TCPSocketActionFluent<A>> extends Fluent<A> {
-  public String getHost();
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1TCPSocketActionFluent<A extends V1TCPSocketActionFluent<A>> extends BaseFluent<A>{
+  public V1TCPSocketActionFluent() {
+  }
+  
+  public V1TCPSocketActionFluent(V1TCPSocketAction instance) {
+    this.copyInstance(instance);
+  }
+  private String host;
+  private IntOrString port;
+  
+  protected void copyInstance(V1TCPSocketAction instance) {
+    instance = (instance != null ? instance : new V1TCPSocketAction());
+    if (instance != null) {
+          this.withHost(instance.getHost());
+          this.withPort(instance.getPort());
+        }
+  }
+  
+  public String getHost() {
+    return this.host;
+  }
+  
+  public A withHost(String host) {
+    this.host = host;
+    return (A) this;
+  }
+  
+  public boolean hasHost() {
+    return this.host != null;
+  }
+  
+  public IntOrString getPort() {
+    return this.port;
+  }
+  
+  public A withPort(IntOrString port) {
+    this.port = port;
+    return (A) this;
+  }
+  
+  public boolean hasPort() {
+    return this.port != null;
+  }
+  
+  public A withNewPort(int value) {
+    return (A)withPort(new IntOrString(value));
+  }
+  
+  public A withNewPort(String value) {
+    return (A)withPort(new IntOrString(value));
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1TCPSocketActionFluent that = (V1TCPSocketActionFluent) o;
+    if (!java.util.Objects.equals(host, that.host)) return false;
+    if (!java.util.Objects.equals(port, that.port)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(host,  port,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (host != null) { sb.append("host:"); sb.append(host + ","); }
+    if (port != null) { sb.append("port:"); sb.append(port); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
 
-  public A withHost(String host);
-
-  public Boolean hasHost();
-
-  public IntOrString getPort();
-
-  public A withPort(IntOrString port);
-
-  public Boolean hasPort();
-
-  public A withNewPort(int value);
-
-  public A withNewPort(String value);
 }

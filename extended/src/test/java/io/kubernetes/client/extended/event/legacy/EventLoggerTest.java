@@ -12,21 +12,20 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.event.legacy;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.custom.V1Patch;
 import java.time.OffsetDateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class EventLoggerTest {
+class EventLoggerTest {
 
   @Test
-  public void buildEventPatch() {
+  void buildEventPatch() {
     String expectedStr = "2021-03-02T15:02:48.179000Z";
     OffsetDateTime expected = OffsetDateTime.parse("2021-03-02T15:02:48.179000Z");
     V1Patch patch = EventLogger.buildEventPatch(1, "foo", expected);
-    assertEquals(
-        "{\"message\":\"foo\",\"count\":1,\"lastTimestamp\":\"" + expectedStr + "\"}",
-        patch.getValue());
+    assertThat(patch.getValue())
+        .isEqualTo("{\"message\":\"foo\",\"count\":1,\"lastTimestamp\":\"" + expectedStr + "\"}");
   }
 }

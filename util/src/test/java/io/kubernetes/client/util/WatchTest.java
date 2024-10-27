@@ -12,26 +12,24 @@ limitations under the License.
 */
 package io.kubernetes.client.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.kubernetes.client.openapi.JSON;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the Watch helper class */
-public class WatchTest {
+class WatchTest {
   @Test
-  public void testWatchEnd() throws IOException {
+  void watchEnd() throws IOException {
     JSON json = new JSON();
     Watch<V1ConfigMap> watch =
         new Watch<V1ConfigMap>(
             json, null, new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType(), null);
     JsonObject metadata = new JsonObject();
-    metadata.addProperty("name", "foo");
-    metadata.addProperty("namespace", "bar");
 
     JsonObject status = new JsonObject();
     status.add("metadata", metadata);
@@ -47,6 +45,6 @@ public class WatchTest {
     obj.add("object", status);
     String data = json.getGson().toJson(obj);
     Watch.Response<V1ConfigMap> response = watch.parseLine(data);
-    assertEquals(null, response.object);
+    assertThat(response.object).isEqualTo(null);
   }
 }

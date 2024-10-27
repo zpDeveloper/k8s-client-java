@@ -1,78 +1,33 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
 import io.kubernetes.client.fluent.VisitableBuilder;
-
-public class V1TokenRequestSpecBuilder
-    extends V1TokenRequestSpecFluentImpl<V1TokenRequestSpecBuilder>
-    implements VisitableBuilder<V1TokenRequestSpec, V1TokenRequestSpecBuilder> {
+public class V1TokenRequestSpecBuilder extends V1TokenRequestSpecFluent<V1TokenRequestSpecBuilder> implements VisitableBuilder<V1TokenRequestSpec,V1TokenRequestSpecBuilder>{
   public V1TokenRequestSpecBuilder() {
-    this(false);
+    this(new V1TokenRequestSpec());
   }
-
-  public V1TokenRequestSpecBuilder(Boolean validationEnabled) {
-    this(new V1TokenRequestSpec(), validationEnabled);
-  }
-
+  
   public V1TokenRequestSpecBuilder(V1TokenRequestSpecFluent<?> fluent) {
-    this(fluent, false);
+    this(fluent, new V1TokenRequestSpec());
   }
-
-  public V1TokenRequestSpecBuilder(V1TokenRequestSpecFluent<?> fluent, Boolean validationEnabled) {
-    this(fluent, new V1TokenRequestSpec(), validationEnabled);
-  }
-
-  public V1TokenRequestSpecBuilder(
-      V1TokenRequestSpecFluent<?> fluent, V1TokenRequestSpec instance) {
-    this(fluent, instance, false);
-  }
-
-  public V1TokenRequestSpecBuilder(
-      V1TokenRequestSpecFluent<?> fluent, V1TokenRequestSpec instance, Boolean validationEnabled) {
+  
+  public V1TokenRequestSpecBuilder(V1TokenRequestSpecFluent<?> fluent,V1TokenRequestSpec instance) {
     this.fluent = fluent;
-    fluent.withAudiences(instance.getAudiences());
-
-    fluent.withBoundObjectRef(instance.getBoundObjectRef());
-
-    fluent.withExpirationSeconds(instance.getExpirationSeconds());
-
-    this.validationEnabled = validationEnabled;
+    fluent.copyInstance(instance);
   }
-
+  
   public V1TokenRequestSpecBuilder(V1TokenRequestSpec instance) {
-    this(instance, false);
-  }
-
-  public V1TokenRequestSpecBuilder(V1TokenRequestSpec instance, Boolean validationEnabled) {
     this.fluent = this;
-    this.withAudiences(instance.getAudiences());
-
-    this.withBoundObjectRef(instance.getBoundObjectRef());
-
-    this.withExpirationSeconds(instance.getExpirationSeconds());
-
-    this.validationEnabled = validationEnabled;
+    this.copyInstance(instance);
   }
-
   V1TokenRequestSpecFluent<?> fluent;
-  Boolean validationEnabled;
-
+  
   public V1TokenRequestSpec build() {
     V1TokenRequestSpec buildable = new V1TokenRequestSpec();
     buildable.setAudiences(fluent.getAudiences());
-    buildable.setBoundObjectRef(fluent.getBoundObjectRef());
+    buildable.setBoundObjectRef(fluent.buildBoundObjectRef());
     buildable.setExpirationSeconds(fluent.getExpirationSeconds());
     return buildable;
   }
+  
+
 }

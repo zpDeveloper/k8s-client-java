@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,63 +12,80 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi.models;
 
+import java.util.Objects;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.kubernetes.client.openapi.models.V1SecretReference;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.kubernetes.client.openapi.JSON;
 
 /**
- * FlexPersistentVolumeSource represents a generic persistent volume resource that is
- * provisioned/attached using an exec based plugin.
+ * FlexPersistentVolumeSource represents a generic persistent volume resource that is provisioned/attached using an exec based plugin.
  */
-@ApiModel(
-    description =
-        "FlexPersistentVolumeSource represents a generic persistent volume resource that is provisioned/attached using an exec based plugin.")
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class V1FlexPersistentVolumeSource {
   public static final String SERIALIZED_NAME_DRIVER = "driver";
-
   @SerializedName(SERIALIZED_NAME_DRIVER)
   private String driver;
 
   public static final String SERIALIZED_NAME_FS_TYPE = "fsType";
-
   @SerializedName(SERIALIZED_NAME_FS_TYPE)
   private String fsType;
 
   public static final String SERIALIZED_NAME_OPTIONS = "options";
-
   @SerializedName(SERIALIZED_NAME_OPTIONS)
-  private Map<String, String> options = null;
+  private Map<String, String> options = new HashMap<>();
 
   public static final String SERIALIZED_NAME_READ_ONLY = "readOnly";
-
   @SerializedName(SERIALIZED_NAME_READ_ONLY)
   private Boolean readOnly;
 
   public static final String SERIALIZED_NAME_SECRET_REF = "secretRef";
-
   @SerializedName(SERIALIZED_NAME_SECRET_REF)
   private V1SecretReference secretRef;
 
-  public V1FlexPersistentVolumeSource driver(String driver) {
+  public V1FlexPersistentVolumeSource() {
+  }
 
+  public V1FlexPersistentVolumeSource driver(String driver) {
     this.driver = driver;
     return this;
   }
 
-  /**
+   /**
    * driver is the name of the driver to use for this volume.
-   *
    * @return driver
-   */
-  @ApiModelProperty(
-      required = true,
-      value = "driver is the name of the driver to use for this volume.")
+  **/
+  @jakarta.annotation.Nonnull
   public String getDriver() {
     return driver;
   }
@@ -77,23 +94,17 @@ public class V1FlexPersistentVolumeSource {
     this.driver = driver;
   }
 
-  public V1FlexPersistentVolumeSource fsType(String fsType) {
 
+  public V1FlexPersistentVolumeSource fsType(String fsType) {
     this.fsType = fsType;
     return this;
   }
 
-  /**
-   * fsType is the Filesystem type to mount. Must be a filesystem type supported by the host
-   * operating system. Ex. \&quot;ext4\&quot;, \&quot;xfs\&quot;, \&quot;ntfs\&quot;. The default
-   * filesystem depends on FlexVolume script.
-   *
+   /**
+   * fsType is the Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \&quot;ext4\&quot;, \&quot;xfs\&quot;, \&quot;ntfs\&quot;. The default filesystem depends on FlexVolume script.
    * @return fsType
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "fsType is the Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script.")
+  **/
+  @jakarta.annotation.Nullable
   public String getFsType() {
     return fsType;
   }
@@ -102,8 +113,8 @@ public class V1FlexPersistentVolumeSource {
     this.fsType = fsType;
   }
 
-  public V1FlexPersistentVolumeSource options(Map<String, String> options) {
 
+  public V1FlexPersistentVolumeSource options(Map<String, String> options) {
     this.options = options;
     return this;
   }
@@ -116,13 +127,11 @@ public class V1FlexPersistentVolumeSource {
     return this;
   }
 
-  /**
+   /**
    * options is Optional: this field holds extra command options if any.
-   *
    * @return options
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "options is Optional: this field holds extra command options if any.")
+  **/
+  @jakarta.annotation.Nullable
   public Map<String, String> getOptions() {
     return options;
   }
@@ -131,22 +140,17 @@ public class V1FlexPersistentVolumeSource {
     this.options = options;
   }
 
-  public V1FlexPersistentVolumeSource readOnly(Boolean readOnly) {
 
+  public V1FlexPersistentVolumeSource readOnly(Boolean readOnly) {
     this.readOnly = readOnly;
     return this;
   }
 
-  /**
-   * readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly
-   * setting in VolumeMounts.
-   *
+   /**
+   * readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
    * @return readOnly
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getReadOnly() {
     return readOnly;
   }
@@ -155,19 +159,17 @@ public class V1FlexPersistentVolumeSource {
     this.readOnly = readOnly;
   }
 
-  public V1FlexPersistentVolumeSource secretRef(V1SecretReference secretRef) {
 
+  public V1FlexPersistentVolumeSource secretRef(V1SecretReference secretRef) {
     this.secretRef = secretRef;
     return this;
   }
 
-  /**
+   /**
    * Get secretRef
-   *
    * @return secretRef
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1SecretReference getSecretRef() {
     return secretRef;
   }
@@ -176,8 +178,10 @@ public class V1FlexPersistentVolumeSource {
     this.secretRef = secretRef;
   }
 
+
+
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -185,11 +189,11 @@ public class V1FlexPersistentVolumeSource {
       return false;
     }
     V1FlexPersistentVolumeSource v1FlexPersistentVolumeSource = (V1FlexPersistentVolumeSource) o;
-    return Objects.equals(this.driver, v1FlexPersistentVolumeSource.driver)
-        && Objects.equals(this.fsType, v1FlexPersistentVolumeSource.fsType)
-        && Objects.equals(this.options, v1FlexPersistentVolumeSource.options)
-        && Objects.equals(this.readOnly, v1FlexPersistentVolumeSource.readOnly)
-        && Objects.equals(this.secretRef, v1FlexPersistentVolumeSource.secretRef);
+    return Objects.equals(this.driver, v1FlexPersistentVolumeSource.driver) &&
+        Objects.equals(this.fsType, v1FlexPersistentVolumeSource.fsType) &&
+        Objects.equals(this.options, v1FlexPersistentVolumeSource.options) &&
+        Objects.equals(this.readOnly, v1FlexPersistentVolumeSource.readOnly) &&
+        Objects.equals(this.secretRef, v1FlexPersistentVolumeSource.secretRef);
   }
 
   @Override
@@ -211,12 +215,120 @@ public class V1FlexPersistentVolumeSource {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("driver");
+    openapiFields.add("fsType");
+    openapiFields.add("options");
+    openapiFields.add("readOnly");
+    openapiFields.add("secretRef");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("driver");
+  }
+
+ /**
+  * Validates the JSON Element and throws an exception if issues found
+  *
+  * @param jsonElement JSON Element
+  * @throws IOException if the JSON Element is invalid with respect to V1FlexPersistentVolumeSource
+  */
+  public static void validateJsonElement(JsonElement jsonElement) throws IOException {
+      if (jsonElement == null) {
+        if (!V1FlexPersistentVolumeSource.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in V1FlexPersistentVolumeSource is not found in the empty JSON string", V1FlexPersistentVolumeSource.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Map.Entry<String, JsonElement> entry : entries) {
+        if (!V1FlexPersistentVolumeSource.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `V1FlexPersistentVolumeSource` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : V1FlexPersistentVolumeSource.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+        }
+      }
+        JsonObject jsonObj = jsonElement.getAsJsonObject();
+      if (!jsonObj.get("driver").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `driver` to be a primitive type in the JSON string but got `%s`", jsonObj.get("driver").toString()));
+      }
+      if ((jsonObj.get("fsType") != null && !jsonObj.get("fsType").isJsonNull()) && !jsonObj.get("fsType").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `fsType` to be a primitive type in the JSON string but got `%s`", jsonObj.get("fsType").toString()));
+      }
+      // validate the optional field `secretRef`
+      if (jsonObj.get("secretRef") != null && !jsonObj.get("secretRef").isJsonNull()) {
+        V1SecretReference.validateJsonElement(jsonObj.get("secretRef"));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!V1FlexPersistentVolumeSource.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'V1FlexPersistentVolumeSource' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<V1FlexPersistentVolumeSource> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(V1FlexPersistentVolumeSource.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<V1FlexPersistentVolumeSource>() {
+           @Override
+           public void write(JsonWriter out, V1FlexPersistentVolumeSource value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public V1FlexPersistentVolumeSource read(JsonReader in) throws IOException {
+             JsonElement jsonElement = elementAdapter.read(in);
+             validateJsonElement(jsonElement);
+             return thisAdapter.fromJsonTree(jsonElement);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of V1FlexPersistentVolumeSource given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of V1FlexPersistentVolumeSource
+  * @throws IOException if the JSON string is invalid with respect to V1FlexPersistentVolumeSource
+  */
+  public static V1FlexPersistentVolumeSource fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, V1FlexPersistentVolumeSource.class);
+  }
+
+ /**
+  * Convert an instance of V1FlexPersistentVolumeSource to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }

@@ -1,8 +1,8 @@
 # Deploy to Maven release process
 
 This document describes how to configure and use the [Maven release
-plugin](http://maven.apache.org/maven-release/maven-release-plugin) to publish
-to [Sonatype](http://central.sonatype.org/).
+plugin](https://maven.apache.org/maven-release/maven-release-plugin) to publish
+to [Sonatype](https://central.sonatype.org/).
 
 Releases are done on an as-needed basis, and this doc applies only to
 [OWNERS](https://github.com/kubernetes-client/java/blob/master/OWNERS).
@@ -15,7 +15,7 @@ branches.
 Maintainers meet the following requirements will be able to perform automated
 release to maven central via Github Action job named "Maven Release":
 
-* Has "collaborator" permission or greater access (otherwise the can't run the
+* Has "collaborator" permission or greater access (otherwise can't run the
   job manually).
 * Should be in the OWNERS file.
 
@@ -24,20 +24,21 @@ release to maven central via Github Action job named "Maven Release":
 #### Make sure the release job runs on the release branch
 
 When cutting the next major release, firstly we need to fork out a new release
-branch named `release-<major>`. So the release job will execute the maven 
-release plugin and push generated releasing commits to the release branch
-if the `release:prepare` process finishes successfully. Note that if we're 
-bumping a new patch version from an existing release branch, this step can be
-omitted.
+branch named `release-<major>` or `release-legacy-<major>`. So the release job 
+will execute the maven release plugin and push generated releasing commits to 
+the release branch if the `release:prepare` process finishes successfully. Note 
+that if we're bumping a new patch version from an existing release branch, this 
+step can be omitted.
 
 #### Filling release job input manually
 
 The github action job will require three manual input:
 
-* The POM releasing version, must be a valid semver `X.Y.Z` (without "v" prefix).
+* The POM releasing version, must be a valid semver `X.Y.Z` (without "v" prefix). 
+For `master-java8` branch, the version should adhere to format `X.Y.Z-legacy`.
 * The next development POM version, conventionally we should bump a patch 
   version from the current release version and add a `-SNAPSHOT` suffix. i.e.
-  `X.Y.(Z+1)-SNAPSHOT`.
+  `X.Y.(Z+1)-SNAPSHOT`. (for `master-java8` branch it's `X.Y.(Z+1)-legacy-SNAPSHOT`)
 * Dry-Run: Indicating whether the release job will push the generated release
   commits to the release branch and actually upload the artifacts.
   
@@ -98,7 +99,7 @@ There are three stages to a release explained in detail below:
 Prior to publishing a release, you need to collect three release-specific pieces
 of information:
 
-1. This release's version. We follow [semver](http://semver.org/) to determine
+1. This release's version. We follow [semver](https://semver.org/) to determine
    release versions.
 
 2. This release's changelog. This can generally be inferred from the commit
@@ -135,11 +136,11 @@ Now we are ready to perform the release.
 Make sure there are no unstaged changes, otherwise `mvn` will reject the
 release. There are two commands to be run in the root directory:
 
-1. `mvn release:prepare -DdryRun=true`: This will perform a dry run of the
+1. `./mvnw release:prepare -DdryRun=true`: This will perform a dry run of the
    automated SCM modifications that will performed in the next step. If
    everything looks OK - you're good to continue.
 
-2. `mvn release:clean release:prepare release:perform`: This will first clean
+2. `./mvnw release:clean release:prepare release:perform`: This will first clean
    any staged modifications made in the prior run, commit a new `pom.xml`
    version, tag your source with the current release, build and sign your
    artifacts with your GPG key, and publish the release to Maven central.
@@ -156,7 +157,7 @@ PR against the main repository.
 
 Now that the release is consumable, there are two things left to do:
 
-1. Find the newly released tag that was pushed by `mvn release:prepare` under
+1. Find the newly released tag that was pushed by `./mvnw release:prepare` under
    the [tags](https://github.com/kubernetes-client/java/tags) of the client
    library, and click "Add release notes". Title the release version of the form
    `MAJOR.MINOR.PATCH`, and include the changelog in the release description.
@@ -172,7 +173,7 @@ Let's add entries here as we run into problems.
 * **Authentication problems**: Ensure your git SSH keys & JIRA account have
   access to https://github.com/kubernetes-client/java and the
   `io.kubernetes:client-java` repositories respectively. If this is the case,
-  check `mvn release:<command>` output for complaints of malformed
+  check `./mvnw release:<command>` output for complaints of malformed
   `settings.xml` entries.
 
 * **Undo a mistake**: If you've made a mistake during a release, and the

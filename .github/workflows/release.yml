@@ -27,16 +27,16 @@ jobs:
           echo "${{ github.event.inputs.releaseVersion }}" | perl -ne 'die unless m/^\d+\.\d+\.\d+$/'
           echo "${{ github.event.inputs.nextDevelopmentVersion }}" | perl -ne 'die unless m/^\d+\.\d+\.\d+-SNAPSHOT$/'
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check Actor
         run: |
           # Release actor should be in the OWNER list
           cat OWNERS | grep ${{ github.actor }}
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 8.0.x
+          java-version: 17.0.x
           server-id: ossrh
           server-username: OSSRH_USERNAME
           server-password: OSSRH_TOKEN
@@ -47,25 +47,27 @@ jobs:
           export GPG_TTY=$(tty)
           (echo 5; echo y; echo save) | gpg --command-fd 0 --no-tty --pinentry-mode loopback --passphrase ${{ secrets.GPG_PASSWORD }} --no-greeting --edit-key 'Kubernetes Client Publishers' trust
           (echo 0; echo y; echo save) | gpg --command-fd 0 --no-tty --pinentry-mode loopback --passphrase ${{ secrets.GPG_PASSWORD }} --no-greeting --edit-key 'Kubernetes Client Publishers' expire
-          git config user.email "k8s.ci.robot@gmail.com"
-          git config user.name "Kubernetes Prow Robot"
+          git config user.email "k8s-publishing-bot@users.noreply.github.com"
+          git config user.name "Kubernetes Publisher"
       - name: Check Current Version
         run: |
-          mvn -q \
+          ./mvnw -q \
             -Dexec.executable=echo \
             -Dexec.args='${project.version}' \
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
             --non-recursive \
             exec:exec | perl -ne 'die unless m/${{ github.event.inputs.releaseVersion }}-SNAPSHOT/'
       - name: Release Prepare
         run: |
           git checkout -b 'automated-release-${{ github.event.inputs.releaseVersion }}'
-          mvn --batch-mode \
+          ./mvnw --batch-mode \
             release:prepare \
             -Dtag=v${{ github.event.inputs.releaseVersion }} \
             -DconnectionUrl=https://${{ github.token }}@github.com/${{ github.repository }}.git \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.nextDevelopmentVersion }} \
-            -DpushChanges=false
+            -DpushChanges=false \
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
       - name: Release Perform
         if: ${{ github.event.inputs.dry-run != 'true' }}
         env:
@@ -74,11 +76,12 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
         run: |
           # The tests are already executed in the prepare, skipping
-          mvn -DlocalCheckout=true -Darguments=-DskipTests release:perform
+          ./mvnw -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -DlocalCheckout=true -Darguments=-DskipTests release:perform
           git push https://${{ github.token }}@github.com/${{ github.repository }}.git \
             automated-release-${{ github.event.inputs.releaseVersion }}:automated-release-${{ github.event.inputs.releaseVersion }}
           git push https://${{ github.token }}@github.com/${{ github.repository }}.git v${{ github.event.inputs.releaseVersion }}
       - name: Pull Request
+        if: ${{ github.event.inputs.dry-run != 'true' }}
         uses: repo-sync/pull-request@v2
         with:
           source_branch: automated-release-${{ github.event.inputs.releaseVersion }}

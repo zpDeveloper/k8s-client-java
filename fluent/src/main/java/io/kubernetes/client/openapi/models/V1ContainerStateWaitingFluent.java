@@ -1,31 +1,80 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
+import java.lang.Object;
+import java.lang.String;
 
-/** Generated */
-public interface V1ContainerStateWaitingFluent<A extends V1ContainerStateWaitingFluent<A>>
-    extends Fluent<A> {
-  public String getMessage();
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1ContainerStateWaitingFluent<A extends V1ContainerStateWaitingFluent<A>> extends BaseFluent<A>{
+  public V1ContainerStateWaitingFluent() {
+  }
+  
+  public V1ContainerStateWaitingFluent(V1ContainerStateWaiting instance) {
+    this.copyInstance(instance);
+  }
+  private String message;
+  private String reason;
+  
+  protected void copyInstance(V1ContainerStateWaiting instance) {
+    instance = (instance != null ? instance : new V1ContainerStateWaiting());
+    if (instance != null) {
+          this.withMessage(instance.getMessage());
+          this.withReason(instance.getReason());
+        }
+  }
+  
+  public String getMessage() {
+    return this.message;
+  }
+  
+  public A withMessage(String message) {
+    this.message = message;
+    return (A) this;
+  }
+  
+  public boolean hasMessage() {
+    return this.message != null;
+  }
+  
+  public String getReason() {
+    return this.reason;
+  }
+  
+  public A withReason(String reason) {
+    this.reason = reason;
+    return (A) this;
+  }
+  
+  public boolean hasReason() {
+    return this.reason != null;
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1ContainerStateWaitingFluent that = (V1ContainerStateWaitingFluent) o;
+    if (!java.util.Objects.equals(message, that.message)) return false;
+    if (!java.util.Objects.equals(reason, that.reason)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(message,  reason,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (message != null) { sb.append("message:"); sb.append(message + ","); }
+    if (reason != null) { sb.append("reason:"); sb.append(reason); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
 
-  public A withMessage(String message);
-
-  public Boolean hasMessage();
-
-  public String getReason();
-
-  public A withReason(String reason);
-
-  public Boolean hasReason();
 }

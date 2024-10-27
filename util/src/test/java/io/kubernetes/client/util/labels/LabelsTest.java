@@ -12,31 +12,31 @@ limitations under the License.
 */
 package io.kubernetes.client.util.labels;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LabelsTest {
+class LabelsTest {
 
   @Test
-  public void testAddLabels() {
+  void addLabels() {
     V1Pod pod = new V1Pod().metadata(new V1ObjectMeta());
     Labels.addLabels(pod, "foo", "bar");
-    assertEquals(pod.getMetadata().getLabels().get("foo"), "bar");
+    assertThat("bar").isEqualTo(pod.getMetadata().getLabels().get("foo"));
   }
 
   @Test
-  public void testAddMultipleLabels() {
+  void addMultipleLabels() {
     V1Pod pod = new V1Pod().metadata(new V1ObjectMeta());
     Map<String, String> newLabels = new HashMap<>();
     newLabels.put("foo1", "bar1");
     newLabels.put("foo2", "bar2");
     Labels.addLabels(pod, newLabels);
-    assertEquals(pod.getMetadata().getLabels().get("foo1"), "bar1");
-    assertEquals(pod.getMetadata().getLabels().get("foo2"), "bar2");
+    assertThat("bar1").isEqualTo(pod.getMetadata().getLabels().get("foo1"));
+    assertThat("bar2").isEqualTo(pod.getMetadata().getLabels().get("foo2"));
   }
 }

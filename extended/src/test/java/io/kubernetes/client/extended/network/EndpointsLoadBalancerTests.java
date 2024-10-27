@@ -12,19 +12,18 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.network;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.extended.network.exception.NoAvailableAddressException;
 import io.kubernetes.client.openapi.models.CoreV1EndpointPort;
 import io.kubernetes.client.openapi.models.V1EndpointAddress;
 import io.kubernetes.client.openapi.models.V1EndpointSubset;
 import io.kubernetes.client.openapi.models.V1Endpoints;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class EndpointsLoadBalancerTests {
+class EndpointsLoadBalancerTests {
 
   private final V1Endpoints onePortTwoHostEp =
       new V1Endpoints()
@@ -57,7 +56,7 @@ public class EndpointsLoadBalancerTests {
                   .addPortsItem(new CoreV1EndpointPort().port(8082)));
 
   @Test
-  public void testGetTargetIP1() throws NoAvailableAddressException {
+  void getTargetIP1() throws NoAvailableAddressException {
     AtomicReference<List<String>> receivingAvailableIPs = new AtomicReference<>();
     EndpointsLoadBalancer endpointsLoadBalancer =
         new EndpointsLoadBalancer(
@@ -67,11 +66,11 @@ public class EndpointsLoadBalancerTests {
               return null;
             });
     endpointsLoadBalancer.getTargetIP();
-    assertEquals(Arrays.asList("127.0.0.1", "127.0.0.2"), receivingAvailableIPs.get());
+    assertThat(receivingAvailableIPs.get()).containsExactly("127.0.0.1", "127.0.0.2");
   }
 
   @Test
-  public void testGetTargetIP2() throws NoAvailableAddressException {
+  void getTargetIP2() throws NoAvailableAddressException {
     AtomicReference<List<String>> receivingAvailableIPs = new AtomicReference<>();
     EndpointsLoadBalancer endpointsLoadBalancer =
         new EndpointsLoadBalancer(
@@ -81,11 +80,11 @@ public class EndpointsLoadBalancerTests {
               return null;
             });
     endpointsLoadBalancer.getTargetIP();
-    assertEquals(Arrays.asList("127.0.0.1", "127.0.0.2"), receivingAvailableIPs.get());
+    assertThat(receivingAvailableIPs.get()).containsExactly("127.0.0.1", "127.0.0.2");
   }
 
   @Test
-  public void testGetTargetIP3() throws NoAvailableAddressException {
+  void getTargetIP3() throws NoAvailableAddressException {
     AtomicReference<List<String>> receivingAvailableIPs = new AtomicReference<>();
     EndpointsLoadBalancer endpointsLoadBalancer =
         new EndpointsLoadBalancer(
@@ -95,6 +94,6 @@ public class EndpointsLoadBalancerTests {
               return null;
             });
     endpointsLoadBalancer.getTargetIP(8082);
-    assertEquals(Arrays.asList("127.0.0.3"), receivingAvailableIPs.get());
+    assertThat(receivingAvailableIPs.get()).containsExactly("127.0.0.3");
   }
 }

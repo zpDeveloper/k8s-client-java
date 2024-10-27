@@ -15,197 +15,197 @@ package io.kubernetes.client.util.labels;
 import static io.kubernetes.client.util.labels.EqualityMatcher.equal;
 import static io.kubernetes.client.util.labels.EqualityMatcher.notEqual;
 import static io.kubernetes.client.util.labels.SetMatcher.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.kubernetes.client.openapi.models.V1LabelSelector;
 import io.kubernetes.client.openapi.models.V1LabelSelectorRequirement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LabelSelectorTest {
+class LabelSelectorTest {
 
   @Test
-  public void normalLabelSelectionEqualShouldWork() {
+  void normalLabelSelectionEqualShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(equal("foo", "v1"));
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertFalse(
+            })).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v2");
               }
-            }));
-    assertEquals("foo = v1", labelSelector.toString());
+            })).isFalse();
+    assertThat(labelSelector).hasToString("foo = v1");
   }
 
   @Test
-  public void normalLabelSelectionNotEqualShouldWork() {
+  void normalLabelSelectionNotEqualShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(notEqual("foo", "v1"));
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v2");
               }
-            }));
-    assertFalse(
+            })).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertEquals("foo != v1", labelSelector.toString());
+            })).isFalse();
+    assertThat(labelSelector).hasToString("foo != v1");
   }
 
   @Test
-  public void normalLabelSelectionInShouldWork() {
+  void normalLabelSelectionInShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(in("foo", "v1", "v2"));
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertTrue(
+            })).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v2");
               }
-            }));
-    assertFalse(
+            })).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v3");
               }
-            }));
-    assertEquals("foo in (v1,v2)", labelSelector.toString());
+            })).isFalse();
+    assertThat(labelSelector).hasToString("foo in (v1,v2)");
   }
 
   @Test
-  public void normalLabelSelectionNotInShouldWork() {
+  void normalLabelSelectionNotInShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(notIn("foo", "v1", "v2"));
-    assertFalse(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertFalse(
+            })).isFalse();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v2");
               }
-            }));
-    assertTrue(
+            })).isFalse();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v3");
               }
-            }));
-    assertEquals("foo notin (v1,v2)", labelSelector.toString());
+            })).isTrue();
+    assertThat(labelSelector).hasToString("foo notin (v1,v2)");
   }
 
   @Test
-  public void normalLabelSelectionConjuctionShouldWork() {
+  void normalLabelSelectionConjuctionShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(in("foo", "v1", "v2"), equal("fok", "v1"));
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
                 put("fok", "v1");
               }
-            }));
-    assertFalse(
+            })).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v2");
               }
-            }));
-    assertFalse(
+            })).isFalse();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("fok", "v1");
               }
-            }));
-    assertEquals("foo in (v1,v2),fok = v1", labelSelector.toString());
+            })).isFalse();
+    assertThat(labelSelector).hasToString("foo in (v1,v2),fok = v1");
   }
 
   @Test
-  public void normalLabelSelectionExistsShouldWork() {
+  void normalLabelSelectionExistsShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(exists("foo"));
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertFalse(labelSelector.test(new HashMap<String, String>()));
-    assertFalse(
+            })).isTrue();
+    assertThat(labelSelector.test(new HashMap<String, String>())).isFalse();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("fok", "v1");
               }
-            }));
-    assertEquals("foo", labelSelector.toString());
+            })).isFalse();
+    assertThat(labelSelector).hasToString("foo");
   }
 
   @Test
-  public void normalLabelSelectionNotExistsShouldWork() {
+  void normalLabelSelectionNotExistsShouldWork() {
     LabelSelector labelSelector = LabelSelector.and(notExists("foo"));
-    assertFalse(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertTrue(labelSelector.test(new HashMap<String, String>()));
-    assertTrue(
+            })).isFalse();
+    assertThat(labelSelector.test(new HashMap<String, String>())).isTrue();
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("fok", "v1");
               }
-            }));
-    assertEquals("!foo", labelSelector.toString());
+            })).isTrue();
+    assertThat(labelSelector).hasToString("!foo");
   }
 
   @Test
-  public void emptyLabelSelectorShouldWork() {
+  void emptyLabelSelectorShouldWork() {
     LabelSelector labelSelector = LabelSelector.empty();
-    assertTrue(
+    assertThat(
         labelSelector.test(
             new HashMap<String, String>() {
               {
                 put("foo", "v1");
               }
-            }));
-    assertEquals("", labelSelector.toString());
+            })).isTrue();
+    assertThat(labelSelector.toString()).isEmpty();
   }
 
   @Test
-  public void parseWithLabelsShouldWork() throws IllegalArgumentException {
+  void parseWithLabelsShouldWork() throws IllegalArgumentException {
     HashMap<String, String> labels =
         new HashMap<String, String>() {
           {
@@ -222,13 +222,13 @@ public class LabelSelectorTest {
             put("app2", "bar");
           }
         };
-    Assert.assertTrue(labelSelector.test(testSelector));
+    assertThat(labelSelector.test(testSelector)).isTrue();
     testSelector.remove("app1");
-    Assert.assertFalse(labelSelector.test(testSelector));
+    assertThat(labelSelector.test(testSelector)).isFalse();
   }
 
   @Test
-  public void parseWithExpressionsShouldWork() throws IllegalArgumentException {
+  void parseWithExpressionsShouldWork() throws IllegalArgumentException {
     List<V1LabelSelectorRequirement> exprs =
         new LinkedList<V1LabelSelectorRequirement>() {
           {
@@ -274,11 +274,11 @@ public class LabelSelectorTest {
             put("key3", "");
           }
         };
-    Assert.assertTrue(labelSelector.test(testSelector));
+    assertThat(labelSelector.test(testSelector)).isTrue();
   }
 
   @Test
-  public void parseWithLabelsAndExpressionsShouldWork() throws IllegalArgumentException {
+  void parseWithLabelsAndExpressionsShouldWork() throws IllegalArgumentException {
     HashMap<String, String> labels =
         new HashMap<String, String>() {
           {
@@ -334,11 +334,11 @@ public class LabelSelectorTest {
             put("key3", "");
           }
         };
-    Assert.assertTrue(labelSelector.test(testSelector));
+    assertThat(labelSelector.test(testSelector)).isTrue();
   }
 
   @Test
-  public void parseWithWrongOpShouldThrowIllegalArgumentException() {
+  void parseWithWrongOpShouldThrowIllegalArgumentException() {
     List<V1LabelSelectorRequirement> exprs =
         new LinkedList<V1LabelSelectorRequirement>() {
           {
@@ -356,6 +356,7 @@ public class LabelSelectorTest {
           }
         };
     V1LabelSelector v1LabelSelector = new V1LabelSelector().matchExpressions(exprs);
-    assertThrows(IllegalArgumentException.class, () -> LabelSelector.parse(v1LabelSelector));
+    assertThatThrownBy(() -> LabelSelector.parse(v1LabelSelector))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }

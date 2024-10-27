@@ -12,8 +12,9 @@ limitations under the License.
 */
 package io.kubernetes.client.informer.cache;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
@@ -23,11 +24,11 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DeltaFIFOTest {
+class DeltaFIFOTest {
   @Test
-  public void testDeltaFIFOBasic() throws InterruptedException {
+  void deltaFIFOBasic() throws InterruptedException {
     Deque<MutablePair<DeltaFIFO.DeltaType, KubernetesObject>> receivingDeltas = new LinkedList<>();
     V1Pod foo1 = new V1Pod().metadata(new V1ObjectMeta().name("foo1").namespace("default"));
     Cache cache = new Cache();
@@ -44,8 +45,8 @@ public class DeltaFIFOTest {
         });
     receivingDelta = receivingDeltas.peekFirst();
     receivingDeltas.removeFirst();
-    assertEquals(foo1, receivingDelta.getRight());
-    assertEquals(DeltaFIFO.DeltaType.Added, receivingDelta.getLeft());
+    assertThat(receivingDelta.getRight()).isEqualTo(foo1);
+    assertThat(receivingDelta.getLeft()).isEqualTo(DeltaFIFO.DeltaType.Added);
 
     // basic update operation
     deltaFIFO.update(foo1);
@@ -57,8 +58,8 @@ public class DeltaFIFOTest {
         });
     receivingDelta = receivingDeltas.peekFirst();
     receivingDeltas.removeFirst();
-    assertEquals(foo1, receivingDelta.getRight());
-    assertEquals(DeltaFIFO.DeltaType.Updated, receivingDelta.getLeft());
+    assertThat(receivingDelta.getRight()).isEqualTo(foo1);
+    assertThat(receivingDelta.getLeft()).isEqualTo(DeltaFIFO.DeltaType.Updated);
 
     // basic delete operation
     deltaFIFO.delete(foo1);
@@ -70,8 +71,8 @@ public class DeltaFIFOTest {
         });
     receivingDelta = receivingDeltas.peekFirst();
     receivingDeltas.removeFirst();
-    assertEquals(foo1, receivingDelta.getRight());
-    assertEquals(DeltaFIFO.DeltaType.Deleted, receivingDelta.getLeft());
+    assertThat(receivingDelta.getRight()).isEqualTo(foo1);
+    assertThat(receivingDelta.getLeft()).isEqualTo(DeltaFIFO.DeltaType.Deleted);
 
     // basic sync operation
     deltaFIFO.replace(Arrays.asList(foo1), "0");
@@ -83,12 +84,12 @@ public class DeltaFIFOTest {
         });
     receivingDelta = receivingDeltas.peekFirst();
     receivingDeltas.removeFirst();
-    assertEquals(foo1, receivingDelta.getRight());
-    assertEquals(DeltaFIFO.DeltaType.Sync, receivingDelta.getLeft());
+    assertThat(receivingDelta.getRight()).isEqualTo(foo1);
+    assertThat(receivingDelta.getLeft()).isEqualTo(DeltaFIFO.DeltaType.Sync);
   }
 
   @Test
-  public void testDeltaFIFODedup() {
+  void deltaFIFODedup() {
     V1Pod foo1 =
         new V1Pod()
             .metadata(new V1ObjectMeta().name("foo1").namespace("default").resourceVersion("ver"));
@@ -100,11 +101,11 @@ public class DeltaFIFOTest {
     deltaFIFO.add(foo1);
     deltaFIFO.delete(foo1);
     deltas = deltaFIFO.getItems().get(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
-    assertEquals(DeltaFIFO.DeltaType.Deleted, deltas.peekLast().getLeft());
-    assertEquals(foo1, deltas.peekLast().getRight());
-    assertEquals(DeltaFIFO.DeltaType.Added, deltas.peekFirst().getLeft());
-    assertEquals(foo1, deltas.peekFirst().getRight());
-    assertEquals(2, deltas.size());
+    assertThat(deltas.peekLast().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Deleted);
+    assertThat(deltas.peekLast().getRight()).isEqualTo(foo1);
+    assertThat(deltas.peekFirst().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Added);
+    assertThat(deltas.peekFirst().getRight()).isEqualTo(foo1);
+    assertThat(deltas).hasSize(2);
     deltaFIFO.getItems().remove(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
 
     // add-delete-delete dedup
@@ -112,22 +113,22 @@ public class DeltaFIFOTest {
     deltaFIFO.delete(foo1);
     deltaFIFO.delete(foo1);
     deltas = deltaFIFO.getItems().get(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
-    assertEquals(DeltaFIFO.DeltaType.Deleted, deltas.peekLast().getLeft());
-    assertEquals(foo1, deltas.peekLast().getRight());
-    assertEquals(DeltaFIFO.DeltaType.Added, deltas.peekFirst().getLeft());
-    assertEquals(foo1, deltas.peekFirst().getRight());
-    assertEquals(2, deltas.size());
+    assertThat(deltas.peekLast().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Deleted);
+    assertThat(deltas.peekLast().getRight()).isEqualTo(foo1);
+    assertThat(deltas.peekFirst().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Added);
+    assertThat(deltas.peekFirst().getRight()).isEqualTo(foo1);
+    assertThat(deltas).hasSize(2);
     deltaFIFO.getItems().remove(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
 
     // add-sync dedupe
     deltaFIFO.add(foo1);
     deltaFIFO.replace(Collections.singletonList(foo1), foo1.getMetadata().getResourceVersion());
     deltas = deltaFIFO.getItems().get(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
-    assertEquals(1, deltas.size());
+    assertThat(deltas).hasSize(1);
   }
 
   @Test
-  public void testDeltaFIFOResync() {
+  void deltaFIFOResync() {
     V1Pod foo1 = new V1Pod().metadata(new V1ObjectMeta().name("foo1").namespace("default"));
     Cache cache = new Cache();
     DeltaFIFO deltaFIFO = new DeltaFIFO(Caches::deletionHandlingMetaNamespaceKeyFunc, cache);
@@ -139,13 +140,13 @@ public class DeltaFIFOTest {
     Deque<MutablePair<DeltaFIFO.DeltaType, KubernetesObject>> deltas =
         deltaFIFO.getItems().get(Caches.deletionHandlingMetaNamespaceKeyFunc(foo1));
 
-    assertEquals(1, deltas.size());
-    assertEquals(foo1, deltas.peekLast().getRight());
-    assertEquals(DeltaFIFO.DeltaType.Sync, deltas.peekLast().getLeft());
+    assertThat(deltas).hasSize(1);
+    assertThat(deltas.peekLast().getRight()).isEqualTo(foo1);
+    assertThat(deltas.peekLast().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Sync);
   }
 
   @Test
-  public void testDeltaFIFOReplaceWithDeleteDeltaIn() throws InterruptedException {
+  void deltaFIFOReplaceWithDeleteDeltaIn() throws InterruptedException {
     V1Pod oldPod = new V1Pod().metadata(new V1ObjectMeta().namespace("default").name("foo1"));
     V1Pod newPod = new V1Pod().metadata(new V1ObjectMeta().namespace("default").name("foo2"));
 
@@ -158,14 +159,14 @@ public class DeltaFIFOTest {
 
     deltaFIFO.pop(
         (deltas) -> {
-          assertEquals(DeltaFIFO.DeltaType.Deleted, deltas.getFirst().getLeft());
-          assertEquals(oldPod, deltas.getFirst().getRight());
+          assertThat(deltas.getFirst().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Deleted);
+          assertThat(deltas.getFirst().getRight()).isEqualTo(oldPod);
         });
 
     deltaFIFO.pop(
         (deltas) -> {
-          assertEquals(DeltaFIFO.DeltaType.Sync, deltas.getFirst().getLeft());
-          assertEquals(newPod, deltas.getFirst().getRight());
+          assertThat(deltas.getFirst().getLeft()).isEqualTo(DeltaFIFO.DeltaType.Sync);
+          assertThat(deltas.getFirst().getRight()).isEqualTo(newPod);
         });
   }
 }

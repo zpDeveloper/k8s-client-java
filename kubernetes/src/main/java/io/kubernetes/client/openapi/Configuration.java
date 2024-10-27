@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,29 +12,29 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi;
 
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class Configuration {
-  private static ApiClient defaultApiClient = new ApiClient();
+    public static final String VERSION = "21.0.0-SNAPSHOT";
 
-  /**
-   * Get the default API client, which would be used when creating API instances without providing
-   * an API client.
-   *
-   * @return Default API client
-   */
-  public static ApiClient getDefaultApiClient() {
-    return defaultApiClient;
-  }
+    private static ApiClient defaultApiClient = new ApiClient();
 
-  /**
-   * Set the default API client, which would be used when creating API instances without providing
-   * an API client.
-   *
-   * @param apiClient API client
-   */
-  public static void setDefaultApiClient(ApiClient apiClient) {
-    defaultApiClient = apiClient;
-  }
+    /**
+     * Get the default API client, which would be used when creating API
+     * instances without providing an API client.
+     *
+     * @return Default API client
+     */
+    public static ApiClient getDefaultApiClient() {
+        return defaultApiClient;
+    }
+
+    /**
+     * Set the default API client, which would be used when creating API
+     * instances without providing an API client.
+     *
+     * @param apiClient API client
+     */
+    public static void setDefaultApiClient(ApiClient apiClient) {
+        defaultApiClient = apiClient;
+    }
 }

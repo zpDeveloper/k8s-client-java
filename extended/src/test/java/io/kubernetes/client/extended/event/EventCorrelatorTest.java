@@ -12,9 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.event;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.extended.event.legacy.EventAggregator;
@@ -35,30 +33,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class EventCorrelatorTest {
-
-  @Parameter(0)
-  public CoreV1Event[] previousEvents;
-
-  @Parameter(1)
-  public CoreV1Event newEvent;
-
-  @Parameter(2)
-  public CoreV1Event expectedEvent;
-
-  @Parameter(3)
-  public Boolean expectedSkip;
-
+class EventCorrelatorTest {
   // creates the test data
-  @Parameters
-  public static Collection<Object[]> data() {
+  static Collection<Object[]> data() {
     V1ObjectReference podRef =
         new V1ObjectReferenceBuilder()
             .withApiVersion("v1")
@@ -155,15 +135,21 @@ public class EventCorrelatorTest {
     return Arrays.asList(data);
   }
 
-  @Test
-  public void testEventCorrelate() throws InterruptedException {
+  @MethodSource("data")
+  @ParameterizedTest
+  void eventCorrelate(
+      CoreV1Event[] previousEvents,
+      CoreV1Event newEvent,
+      CoreV1Event expectedEvent,
+      Boolean expectedSkip)
+      throws Exception {
     EventCorrelator correlator = new EventCorrelator();
     for (CoreV1Event event : previousEvents) {
       OffsetDateTime now = OffsetDateTime.now();
       event.setFirstTimestamp(now);
       event.setLastTimestamp(now);
       Optional<MutablePair<CoreV1Event, V1Patch>> result = correlator.correlate(event);
-      if (!result.isPresent()) {
+      if (result.isEmpty()) {
         correlator.updateState(event);
       }
     }
@@ -173,7 +159,7 @@ public class EventCorrelatorTest {
     newEvent.setLastTimestamp(now);
     Optional<MutablePair<CoreV1Event, V1Patch>> result = correlator.correlate(newEvent);
 
-    assertEquals(expectedSkip, !result.isPresent());
+    assertThat(result.isEmpty()).isEqualTo(expectedSkip);
     if (!expectedSkip) {
       CoreV1Event correlatedEvent = result.get().getLeft();
       correlatedEvent.setMetadata(new V1ObjectMetaBuilder().withName("").withNamespace("").build());
@@ -183,26 +169,26 @@ public class EventCorrelatorTest {
 
   private void validateEvent(CoreV1Event expectedEvent, CoreV1Event actualEvent) {
     CoreV1Event recvEvent = new CoreV1EventBuilder(actualEvent).build();
-    assertNotEquals(0, recvEvent.getFirstTimestamp().toInstant().toEpochMilli());
-    assertNotEquals(0, recvEvent.getLastTimestamp().toInstant().toEpochMilli());
+    assertThat(recvEvent.getFirstTimestamp().toInstant().toEpochMilli()).isNotEqualTo(0);
+    assertThat(recvEvent.getLastTimestamp().toInstant().toEpochMilli()).isNotEqualTo(0);
     if (actualEvent.getFirstTimestamp().equals(actualEvent.getLastTimestamp())) {
-      if (expectedEvent.getCount() > 1) {
-        fail("firstTimestamp and lastTimestamp must not be equal to indicate compression happen");
-      }
+      assertThat(expectedEvent.getCount())
+          .withFailMessage("firstTimestamp and lastTimestamp must not be equal to indicate compression happen")
+          .isLessThanOrEqualTo(1);
     } else {
-      if (expectedEvent.getCount() == 1) {
-        fail("firstTimestamp and lastTimestamp must be equal to indicate there's only one event");
-      }
+      assertThat(expectedEvent.getCount())
+          .withFailMessage("firstTimestamp and lastTimestamp must be equal to indicate there's only one event")
+          .isNotEqualTo(1);
     }
     // clear the timestamps
     recvEvent.setFirstTimestamp(expectedEvent.getFirstTimestamp());
     recvEvent.setLastTimestamp(expectedEvent.getLastTimestamp());
 
-    if (!recvEvent.getMetadata().getName().startsWith(expectedEvent.getMetadata().getName())) {
-      fail("prefix doesnt match");
-    }
+    assertThat(recvEvent.getMetadata().getName())
+        .withFailMessage("prefix doesnt match")
+        .startsWith(expectedEvent.getMetadata().getName());
 
-    assertEquals(expectedEvent, recvEvent);
+    assertThat(recvEvent).isEqualTo(expectedEvent);
   }
 
   private static CoreV1Event deepCopy(CoreV1Event event) {

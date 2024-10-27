@@ -2,24 +2,30 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>client-java-parent</artifactId>
   <groupId>io.kubernetes</groupId>
-  <version>16.0.0-SNAPSHOT</version>
+  <version>21.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Kubernetes Client API</name>
   <url>https://github.com/kubernetes-client/java</url>
   <description>Kubernetes Client Library</description>
 
   <modules>
+    <!-- These modules are not released -->  
+    <module>e2e</module>
+    <module>examples</module>
+    <module>client-java-contrib/cert-manager</module>
+    <module>client-java-contrib/prometheus-operator</module>
+    <module>client-java-contrib/admissionreview</module>
+    <!-- Due to a bug NEXUS-19853 if skipped modules are at the end
+	 they block upload for all modules. So these are listed first -->
+
+    <!-- These modules are released -->
     <module>util</module>
     <module>kubernetes</module>
     <module>proto</module>
     <module>extended</module>
     <module>fluent</module>
     <module>spring</module>
-    <module>e2e</module>
-    <module>examples</module>
-    <module>client-java-contrib/cert-manager</module>
-    <module>client-java-contrib/prometheus-operator</module>
-    <module>client-java-contrib/admissionreview</module>
+    <module>spring-aot</module>
   </modules>
 
   <scm>
@@ -29,12 +35,8 @@
     <tag>HEAD</tag>
   </scm>
 
-  <prerequisites>
-    <maven>2.2.0</maven>
-  </prerequisites>
-
   <properties>
-    <java.version>1.8</java.version>
+    <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven-plugin-version>1.0.0</maven-plugin-version>
@@ -42,27 +44,40 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <javax.annotation.version>1.3.2</javax.annotation.version>
-    <snakeyaml.version>1.33</snakeyaml.version>
-    <slf4j.version>2.0.3</slf4j.version>
+    <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
+    <jakarta.ws.rs-api-version>3.1.0</jakarta.ws.rs-api-version>
+    <snakeyaml.version>2.3</snakeyaml.version>
+    <slf4j.version>2.0.16</slf4j.version>
     <caffeine.version>2.9.3</caffeine.version>
-    <protobuf.version>3.21.8</protobuf.version>
-    <junit.version>4.13</junit.version>
-    <bucket4j.version>7.6.0</bucket4j.version>
-    <bouncycastle.version>1.72</bouncycastle.version>
-    <gson.version>2.9.1</gson.version>
+    <protobuf.version>4.28.3</protobuf.version>
+    <junit-jupiter.version>5.11.3</junit-jupiter.version>
+    <bucket4j.version>8.10.1</bucket4j.version>
+    <bouncycastle.version>1.78.1</bouncycastle.version>
+    <gson.version>2.11.0</gson.version>
+    <jackson.version>2.18.0</jackson.version>
     <jsr305.version>3.0.2</jsr305.version>
-    <okhttp3.version>4.10.0</okhttp3.version>
-    <swagger-core.version>1.6.8</swagger-core.version>
-    <sundrio.version>0.93.1</sundrio.version>
-    <gsonfire.version>1.8.5</gsonfire.version>
-    <apache.commons.lang3.version>3.12.0</apache.commons.lang3.version>
+    <okhttp3.version>4.12.0</okhttp3.version>
+    <swagger-core.version>1.6.14</swagger-core.version>
+    <sundrio.version>0.200.0</sundrio.version>
+    <gsonfire.version>1.9.0</gsonfire.version>
+    <apache.commons.lang3.version>3.17.0</apache.commons.lang3.version>
     <apache.commons.collections4.version>4.4</apache.commons.collections4.version>
-    <apache.commons.compress>1.21</apache.commons.compress>
-    <apache.commons.io>2.11.0</apache.commons.io>
-    <common.codec.version>1.15</common.codec.version>
-    <spring.boot.version>2.7.5</spring.boot.version>
-    <spring.version>5.3.23</spring.version>
-    <prometheus.client.version>0.15.0</prometheus.client.version>
+    <apache.commons.compress>1.27.1</apache.commons.compress>
+    <apache.commons.io>2.17.0</apache.commons.io>
+    <common.codec.version>1.17.1</common.codec.version>
+    <spring.boot.version>3.3.5</spring.boot.version>
+    <spring.version>6.1.14</spring.version>
+    <prometheus.client.version>0.16.0</prometheus.client.version>
+    <reflections.version>0.10.2</reflections.version>
+
+    <!-- The `optional` tag in `dependencyManagement` is not inherited; see
+    https://issues.apache.org/jira/browse/MNG-5227 and
+    https://issues.apache.org/jira/browse/MNG-5632. Therefore, we specify
+    optional dependencies here to manage them in a single location. -->
+    <prometheus.client.optional>true</prometheus.client.optional>
+    <com.amazonaws.aws-java-sdk-sts.optional>true</com.amazonaws.aws-java-sdk-sts.optional>
+    <com.google.auth.google-auth-library-oauth2-http.optional>true</com.google.auth.google-auth-library-oauth2-http.optional>
+    <org.springframework.boot.spring-boot-actuator.optional>true</org.springframework.boot.spring-boot-actuator.optional>
 
     <e2e.skip>true</e2e.skip>
 
@@ -135,10 +150,9 @@
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.microsoft.azure</groupId>
-        <artifactId>adal4j</artifactId>
-        <version>1.6.7</version>
-        <optional>true</optional>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-sts</artifactId>
+        <version>1.12.777</version>
       </dependency>
       <dependency>
         <groupId>com.google.protobuf</groupId>
@@ -148,17 +162,17 @@
       <dependency>
         <groupId>org.bitbucket.b_c</groupId>
         <artifactId>jose4j</artifactId>
-        <version>0.9.1</version>
+        <version>0.9.6</version>
       </dependency>
       <dependency>
-        <groupId>com.github.vladimir-bukhtoyarov</groupId>
+        <groupId>com.bucket4j</groupId>
         <artifactId>bucket4j-core</artifactId>
         <version>${bucket4j.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.5.0</version>
+        <version>1.9.0</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -174,24 +188,26 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-actuator</artifactId>
         <version>${spring.boot.version}</version>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>io.prometheus</groupId>
         <artifactId>simpleclient</artifactId>
         <version>${prometheus.client.version}</version>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>io.prometheus</groupId>
         <artifactId>simpleclient_httpserver</artifactId>
         <version>${prometheus.client.version}</version>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
         <version>${gson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>io.gsonfire</groupId>
@@ -219,6 +235,16 @@
         <version>${javax.annotation.version}</version>
       </dependency>
       <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta.annotation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>${jakarta.ws.rs-api-version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
         <version>${jsr305.version}</version>
@@ -226,28 +252,26 @@
       <dependency>
         <groupId>com.google.auth</groupId>
         <artifactId>google-auth-library-oauth2-http</artifactId>
-        <version>1.12.1</version>
-        <optional>true</optional>
+        <version>1.29.0</version>
       </dependency>
-
 
       <!-- tests -->
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.3.4</version>
+        <version>1.5.11</version>
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13.2</version>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit-jupiter.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>4.8.1</version>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>5.14.2</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -258,14 +282,14 @@
       </dependency>
       <dependency>
         <groupId>uk.org.webcompere</groupId>
-        <artifactId>system-stubs-core</artifactId>
-        <version>2.0.1</version>
+        <artifactId>system-stubs-jupiter</artifactId>
+        <version>2.1.7</version>
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.github.tomakehurst</groupId>
+        <groupId>org.wiremock</groupId>
         <artifactId>wiremock</artifactId>
-        <version>2.27.2</version>
+        <version>3.9.2</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -283,30 +307,24 @@
       <dependency>
         <groupId>com.flipkart.zjsonpatch</groupId>
         <artifactId>zjsonpatch</artifactId>
-        <version>0.4.12</version>
+        <version>0.4.16</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-junit</artifactId>
-        <version>2.0.0.0</version>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.26.3</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>4.2.0</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <version>3.23.1</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>2.13.4</version>
+        <version>4.2.2</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -329,15 +347,20 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>2.43.0</version>
+        </plugin>
+        <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <version>5.1.8</version>
+          <version>5.1.9</version>
           <extensions>true</extensions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.4.1</version>
+          <version>3.10.1</version>
           <configuration>
             <doclint>none</doclint>
           </configuration>
@@ -345,37 +368,37 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.13.0</version>
         </plugin>
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.13</version>
+          <version>1.7.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.6.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.4.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.2</version>
+          <version>3.5.1</version>
           <configuration>
             <trimStackTrace>false</trimStackTrace> <!-- SUREFIRE-1226 workaround -->
           </configuration>
@@ -383,12 +406,22 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.3</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.gmavenplus</groupId>
           <artifactId>gmavenplus-plugin</artifactId>
-          <version>2.1.0</version>
+          <version>4.0.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.12</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.5.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -397,7 +430,7 @@
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.1</version>
         <executions>
             <execution>
                 <id>attach-sources</id>
@@ -410,7 +443,7 @@
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.4.2</version>
+        <version>3.7.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -435,7 +468,6 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.27.2</version>
         <configuration>
           <formats>
             <!-- common settings -->
@@ -468,11 +500,23 @@
                 <replacement>INVALID IMPORTS (GUAVA)</replacement>
               </replaceRegex>
             </format>
+            <!-- prevents empty SnakeYaml constructor -->
+            <format>
+              <includes>
+                <include>src/**/*.java</include>
+              </includes>
+              <replaceRegex>
+                <name>Forbids new Yaml()</name>
+                <searchRegex>^.*new Yaml\(\).*$</searchRegex>
+                <replacement>INVALID CONSTRUCTOR (SNAKEYAML)</replacement>
+              </replaceRegex>
+            </format>
           </formats>
           <java>
-            <removeUnusedImports /> <!-- self-explanatory -->
+            <removeUnusedImports />
             <googleJavaFormat>
-              <version>1.7</version>
+              <!-- Use the floor LTS Java version used in CI -->
+              <version>1.17.0</version>
             </googleJavaFormat>
           </java>
           <groovy>
@@ -523,6 +567,25 @@ limitations under the License.
           </licenseHeader>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>2.2.0</version>
+                </requireMavenVersion>
+              </rules>    
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -534,7 +597,7 @@ limitations under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.2.7</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -549,6 +612,25 @@ limitations under the License.
                     <arg>loopback</arg>
                   </gpgArguments>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>jacoco-initialize</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>jacoco-report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>

@@ -24,6 +24,7 @@ import static io.kubernetes.client.util.KubeConfig.KUBEDIR;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1CertificateSigningRequest;
+import io.kubernetes.client.persister.FilePersister;
 import io.kubernetes.client.util.credentials.AccessTokenAuthentication;
 import io.kubernetes.client.util.credentials.Authentication;
 import io.kubernetes.client.util.credentials.ClientCertificateAuthentication;
@@ -69,6 +70,9 @@ public class ClientBuilder {
   private Duration readTimeout = Duration.ZERO;
   // default health check is once a minute
   private Duration pingInterval = Duration.ofMinutes(1);
+  // time to refresh exec based credentials
+  // TODO: Read the expiration from the credential itself
+  private Duration execCredentialRefreshPeriod = null;
 
   /**
    * Creates an {@link ApiClient} by calling {@link #standard()} and {@link #build()}.
@@ -158,9 +162,7 @@ public class ClientBuilder {
       final String[] filePaths = kubeConfigEnv.split(File.pathSeparator);
       final String kubeConfigPath = filePaths[0];
       if (filePaths.length > 1) {
-        log.warn(
-            "Found multiple kubeconfigs files, $KUBECONFIG: " + kubeConfigEnv + " using first: {}",
-            kubeConfigPath);
+        log.warn("Found multiple kubeconfigs files, $KUBECONFIG: {} using first: {}", kubeConfigEnv, kubeConfigPath);
       }
 
       return kubeConfigPath;
@@ -273,6 +275,20 @@ public class ClientBuilder {
    * @throws IOException if the files specified in the provided <tt>KubeConfig</tt> are not readable
    */
   public static ClientBuilder kubeconfig(KubeConfig config) throws IOException {
+    return kubeconfig(config, null);
+  }
+
+  /**
+   * Creates a builder which is pre-configured from a {@link KubeConfig}.
+   *
+   * <p>To load a <tt>KubeConfig</tt>, see {@link KubeConfig#loadKubeConfig(Reader)}.
+   *
+   * @param config The {@link KubeConfig} to configure the builder from.
+   * @param tokenRefreshPeriod If the KubeConfig generates a bearer token, after this interval, it will be refreshed.
+   * @return <tt>ClientBuilder</tt> configured from the provided <tt>KubeConfig</tt>
+   * @throws IOException if the files specified in the provided <tt>KubeConfig</tt> are not readable
+   */
+  public static ClientBuilder kubeconfig(KubeConfig config, Duration tokenRefreshPeriod) throws IOException {
     final ClientBuilder builder = new ClientBuilder();
 
     String server = config.getServer();
@@ -296,7 +312,7 @@ public class ClientBuilder {
     builder.setVerifyingSsl(config.verifySSL());
 
     builder.setBasePath(server);
-    builder.setAuthentication(new KubeconfigAuthentication(config));
+    builder.setAuthentication(new KubeconfigAuthentication(config, tokenRefreshPeriod));
     return builder;
   }
 

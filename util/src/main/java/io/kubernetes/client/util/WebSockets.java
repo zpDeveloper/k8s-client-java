@@ -98,6 +98,7 @@ public class WebSockets {
 
     Request request =
         client.buildRequest(
+            client.getBasePath(),
             path,
             method,
             queryParams,
@@ -145,6 +146,12 @@ public class WebSockets {
     @Override
     public void onClosing(WebSocket webSocket, int code, String reason) {
       super.onClosing(webSocket, code, reason);
+      if (code == 1000) {
+        webSocket.close(1000, "Normal close");
+      } else {
+        log.warn("Unexpected WebSocket ({}) closure: {} {}", webSocket, code, reason);
+        webSocket.close(1002, "Abnormal close");
+      }
     }
 
     @Override

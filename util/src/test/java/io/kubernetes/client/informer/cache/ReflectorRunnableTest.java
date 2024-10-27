@@ -12,10 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.informer.cache;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -39,14 +36,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import org.awaitility.Awaitility;
-import org.hamcrest.core.IsEqual;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ReflectorRunnableTest {
+@ExtendWith(MockitoExtension.class)
+class ReflectorRunnableTest {
 
   private static final Class<V1Pod> anyApiType = V1Pod.class;
 
@@ -57,7 +53,7 @@ public class ReflectorRunnableTest {
   @Mock private BiConsumer<Class<V1Pod>, Throwable> exceptionHandler;
 
   @Test
-  public void testReflectorRunOnce() throws ApiException {
+  void reflectorRunOnce() throws ApiException {
     String mockResourceVersion = "1000";
     when(listerWatcher.list(any()))
         .thenReturn(
@@ -89,7 +85,7 @@ public class ReflectorRunnableTest {
   }
 
   @Test
-  public void testReflectorWatchConnectionCloseOnError() throws InterruptedException {
+  void reflectorWatchConnectionCloseOnError() {
     Watchable<V1Pod> watch =
         new MockWatch<V1Pod>(
             new Watch.Response<V1Pod>(EventType.ERROR.name(), new V1Status().status("403")));
@@ -122,7 +118,7 @@ public class ReflectorRunnableTest {
   }
 
   @Test
-  public void testReflectorRunnableCaptureListRuntimeException() throws ApiException {
+  void reflectorRunnableCaptureListRuntimeException() throws ApiException {
     RuntimeException expectedException = new RuntimeException("noxu");
     AtomicReference<Throwable> actualException = new AtomicReference<>();
     when(listerWatcher.list(any())).thenThrow(expectedException);
@@ -141,14 +137,14 @@ public class ReflectorRunnableTest {
       Awaitility.await()
           .atMost(Duration.ofSeconds(1))
           .pollInterval(Duration.ofMillis(100))
-          .untilAtomic(actualException, new IsEqual<>(expectedException));
+          .until(() -> expectedException.equals(actualException.get()));
     } finally {
       reflectorRunnable.stop();
     }
   }
 
   @Test
-  public void testReflectorRunnableShouldPardonList410ApiException() throws ApiException {
+  void reflectorRunnableShouldPardonList410ApiException() throws ApiException {
     ApiException expectedException = new ApiException(410, "noxu");
     AtomicReference<Throwable> actualException = new AtomicReference<>();
     when(listerWatcher.list(any())).thenThrow(expectedException);
@@ -177,7 +173,7 @@ public class ReflectorRunnableTest {
   }
 
   @Test
-  public void testReflectorRunnableShouldCaptureListNon410ApiException() throws ApiException {
+  void reflectorRunnableShouldCaptureListNon410ApiException() throws ApiException {
     ApiException expectedException = new ApiException(403, "noxu");
     AtomicReference<Throwable> actualException = new AtomicReference<>();
     when(listerWatcher.list(any())).thenThrow(expectedException);
@@ -196,14 +192,14 @@ public class ReflectorRunnableTest {
       Awaitility.await()
           .atMost(Duration.ofSeconds(1))
           .pollInterval(Duration.ofMillis(100))
-          .untilAtomic(actualException, new IsEqual<>(expectedException));
+          .until(() -> expectedException.equals(actualException.get()));
     } finally {
       reflectorRunnable.stop();
     }
   }
 
   @Test
-  public void testReflectorRunnableCaptureWatchException() throws ApiException {
+  void reflectorRunnableCaptureWatchException() throws ApiException {
     RuntimeException expectedException = new RuntimeException("noxu");
     AtomicReference<Throwable> actualException = new AtomicReference<>();
     when(listerWatcher.list(any())).thenReturn(new V1PodList().metadata(new V1ListMeta()));
@@ -223,14 +219,14 @@ public class ReflectorRunnableTest {
       Awaitility.await()
           .atMost(Duration.ofSeconds(1))
           .pollInterval(Duration.ofMillis(100))
-          .untilAtomic(actualException, new IsEqual<>(expectedException));
+          .until(() -> expectedException.equals(actualException.get()));
     } finally {
       reflectorRunnable.stop();
     }
   }
 
   @Test
-  public void testReflectorRelistShouldHonorLastSyncResourceVersion() {
+  void reflectorRelistShouldHonorLastSyncResourceVersion() {
     String expectedResourceVersion = "999";
     AtomicReference<String> requestedResourceVersion = new AtomicReference<>();
     ReflectorRunnable<V1Pod, V1PodList> reflectorRunnable =
@@ -273,14 +269,14 @@ public class ReflectorRunnableTest {
       Awaitility.await()
           .atMost(Duration.ofSeconds(1))
           .pollInterval(Duration.ofMillis(100))
-          .untilAtomic(requestedResourceVersion, new IsEqual<>(expectedResourceVersion));
+          .until(() -> expectedResourceVersion.equals(requestedResourceVersion.get()));
     } finally {
       reflectorRunnable.stop();
     }
   }
 
   @Test
-  public void testReflectorListShouldHandleExpiredResourceVersion() throws ApiException {
+  void reflectorListShouldHandleExpiredResourceVersion() throws ApiException {
     String expectedResourceVersion = "100";
     when(listerWatcher.list(any()))
         .thenReturn(
@@ -294,11 +290,11 @@ public class ReflectorRunnableTest {
         .atMost(Duration.ofSeconds(2))
         .pollInterval(Duration.ofMillis(100))
         .until(() -> future.isDone());
-    assertFalse(future.isCompletedExceptionally());
+    assertThat(future.isCompletedExceptionally()).isFalse();
   }
 
   @Test
-  public void testReflectorWatchShouldRelistUponExpiredWatchItem() throws ApiException {
+  void reflectorWatchShouldRelistUponExpiredWatchItem() throws ApiException {
     String expectedResourceVersion = "100";
     Watchable<V1Pod> expiredWatchable = mock(Watchable.class);
     when(expiredWatchable.hasNext()).thenReturn(true);
@@ -318,11 +314,11 @@ public class ReflectorRunnableTest {
         .atMost(Duration.ofSeconds(2))
         .pollInterval(Duration.ofMillis(100))
         .until(() -> future.isDone());
-    assertFalse(future.isCompletedExceptionally());
+    assertThat(future.isCompletedExceptionally()).isFalse();
   }
 
   @Test
-  public void testReflectorListShouldHandleExpiredResourceVersionFromWatchHandler()
+  void reflectorListShouldHandleExpiredResourceVersionFromWatchHandler()
       throws ApiException {
     String expectedResourceVersion = "100";
     when(listerWatcher.list(any()))
@@ -345,25 +341,25 @@ public class ReflectorRunnableTest {
           .pollInterval(Duration.ofMillis(100))
           .until(
               () -> expectedResourceVersion.equals(reflectorRunnable.getLastSyncResourceVersion()));
-      assertTrue(reflectorRunnable.isLastSyncResourceVersionUnavailable());
+      assertThat(reflectorRunnable.isLastSyncResourceVersionUnavailable()).isTrue();
     } finally {
       reflectorRunnable.stop();
     }
   }
 
   @Test
-  public void testDefaultExceptionHandlerSetPerDefault() {
+  void defaultExceptionHandlerSetPerDefault() {
     ReflectorRunnable<V1Pod, V1PodList> reflector =
         new ReflectorRunnable<>(anyApiType, listerWatcher, deltaFIFO);
 
-    assertNotNull(reflector.exceptionHandler);
+    assertThat(reflector.exceptionHandler).isNotNull();
   }
 
   @Test
-  public void testGivemExceptionHandlerSet() {
+  void givemExceptionHandlerSet() {
     ReflectorRunnable<V1Pod, V1PodList> reflector =
         new ReflectorRunnable<>(anyApiType, listerWatcher, deltaFIFO, exceptionHandler);
 
-    assertSame(exceptionHandler, reflector.exceptionHandler);
+    assertThat(reflector.exceptionHandler).isSameAs(exceptionHandler);
   }
 }

@@ -1,31 +1,81 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.Integer;
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
+import java.lang.Object;
+import java.lang.String;
 
-/** Generated */
-public interface V1ServiceBackendPortFluent<A extends V1ServiceBackendPortFluent<A>>
-    extends Fluent<A> {
-  public String getName();
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1ServiceBackendPortFluent<A extends V1ServiceBackendPortFluent<A>> extends BaseFluent<A>{
+  public V1ServiceBackendPortFluent() {
+  }
+  
+  public V1ServiceBackendPortFluent(V1ServiceBackendPort instance) {
+    this.copyInstance(instance);
+  }
+  private String name;
+  private Integer number;
+  
+  protected void copyInstance(V1ServiceBackendPort instance) {
+    instance = (instance != null ? instance : new V1ServiceBackendPort());
+    if (instance != null) {
+          this.withName(instance.getName());
+          this.withNumber(instance.getNumber());
+        }
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+  public A withName(String name) {
+    this.name = name;
+    return (A) this;
+  }
+  
+  public boolean hasName() {
+    return this.name != null;
+  }
+  
+  public Integer getNumber() {
+    return this.number;
+  }
+  
+  public A withNumber(Integer number) {
+    this.number = number;
+    return (A) this;
+  }
+  
+  public boolean hasNumber() {
+    return this.number != null;
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1ServiceBackendPortFluent that = (V1ServiceBackendPortFluent) o;
+    if (!java.util.Objects.equals(name, that.name)) return false;
+    if (!java.util.Objects.equals(number, that.number)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(name,  number,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (name != null) { sb.append("name:"); sb.append(name + ","); }
+    if (number != null) { sb.append("number:"); sb.append(number); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
 
-  public A withName(String name);
-
-  public Boolean hasName();
-
-  public Integer getNumber();
-
-  public A withNumber(Integer number);
-
-  public Boolean hasNumber();
 }

@@ -32,36 +32,29 @@ import io.kubernetes.client.util.generic.GenericKubernetesApi;
 import io.kubernetes.client.util.generic.KubernetesApiResponse;
 import io.kubernetes.client.util.generic.options.ListOptions;
 import java.time.Duration;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SharedInformerFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class SharedInformerFactoryTest {
 
   @Mock private CoreV1Api coreV1Api;
 
   @Mock private GenericKubernetesApi<V1Pod, V1PodList> genericKubernetesApi;
 
   @Test
-  public void shutdownInformerFactoryInstantlyAfterStarting() throws ApiException {
+  void shutdownInformerFactoryInstantlyAfterStarting() throws ApiException {
     SharedInformerFactory factory = new SharedInformerFactory();
     SharedInformer<V1Namespace> nsInformer =
         factory.sharedIndexInformerFor(
             (CallGeneratorParams params) -> {
-              return coreV1Api.listNamespaceCall(
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  params.resourceVersion,
-                  null,
-                  params.timeoutSeconds,
-                  params.watch,
-                  null);
+              return coreV1Api.listNamespace()
+                      .resourceVersion(params.resourceVersion)
+                      .timeoutSeconds(params.timeoutSeconds)
+                      .watch(params.watch)
+                      .buildCall(null);
             },
             V1Namespace.class,
             V1NamespaceList.class);
@@ -73,7 +66,7 @@ public class SharedInformerFactoryTest {
   }
 
   @Test
-  public void testClusterScopedNewInformerUsingGenericApi() {
+  void clusterScopedNewInformerUsingGenericApi() {
     SharedInformerFactory factory = new SharedInformerFactory();
     SharedInformer<V1Pod> podInformer =
         factory.sharedIndexInformerFor(genericKubernetesApi, V1Pod.class, 0);
@@ -89,7 +82,7 @@ public class SharedInformerFactoryTest {
   }
 
   @Test
-  public void testNamespaceScopedNewInformerUsingGenericApi() {
+  void namespaceScopedNewInformerUsingGenericApi() {
     SharedInformerFactory factory = new SharedInformerFactory();
     SharedInformer<V1Pod> podInformer =
         factory.sharedIndexInformerFor(genericKubernetesApi, V1Pod.class, 0, "default");

@@ -12,46 +12,45 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.workqueue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.extended.wait.Wait;
 import java.time.Duration;
 import java.time.Instant;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DefaultDelayingQueueTest {
+class DefaultDelayingQueueTest {
 
   @Test
-  public void testSimpleDelayingQueue() throws Exception {
+  void simpleDelayingQueue() throws Exception {
     final Instant staticTime = Instant.now();
     DefaultDelayingQueue<String> queue = new DefaultDelayingQueue<>();
     // Hold time still
     queue.injectTimeSource(
         () -> {
-          return staticTime;
+          return staticTime.toEpochMilli();
         });
     queue.addAfter("foo", Duration.ofMillis(50));
 
     // Verify that we haven't released it
-    assertTrue(waitForWaitingQueueToFill(queue));
-    assertEquals(queue.length(), 0);
+    assertThat(waitForWaitingQueueToFill(queue)).isTrue();
+    assertThat(0).isEqualTo(queue.length());
 
     // Advance time
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(100);
+          return staticTime.plusMillis(100).toEpochMilli();
         });
-    assertTrue(waitForAdded(queue, 1));
+    assertThat(waitForAdded(queue, 1)).isTrue();
     String item = queue.get();
     queue.done(item);
 
     Thread.sleep(10 * 1000L);
-    assertEquals(queue.length(), 0);
+    assertThat(0).isEqualTo(queue.length());
   }
 
   @Test
-  public void testDeduping() throws Exception {
+  void deduping() throws Exception {
     final Instant staticTime = Instant.now();
     DefaultDelayingQueue<String> queue = new DefaultDelayingQueue<>();
     String item = "foo";
@@ -59,21 +58,21 @@ public class DefaultDelayingQueueTest {
     // Hold time still
     queue.injectTimeSource(
         () -> {
-          return staticTime;
+          return staticTime.toEpochMilli();
         });
 
     queue.addAfter(item, Duration.ofMillis(50));
-    assertTrue(waitForWaitingQueueToFill(queue));
+    assertThat(waitForWaitingQueueToFill(queue)).isTrue();
     queue.addAfter(item, Duration.ofMillis(70));
-    assertTrue(waitForWaitingQueueToFill(queue));
-    assertTrue("should not have added", queue.length() == 0);
+    assertThat(waitForWaitingQueueToFill(queue)).isTrue();
+    assertThat(queue.length()).withFailMessage("should not have added").isZero();
 
     // Advance time
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(60);
+          return staticTime.plusMillis(60).toEpochMilli();
         });
-    assertTrue(waitForAdded(queue, 1));
+    assertThat(waitForAdded(queue, 1)).isTrue();
     item = queue.get();
     queue.done(item);
 
@@ -81,22 +80,22 @@ public class DefaultDelayingQueueTest {
     // Advance time
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(90);
+          return staticTime.plusMillis(90).toEpochMilli();
         });
-    assertTrue("should not have added", queue.length() == 0);
+    assertThat(queue.length()).withFailMessage("should not have added").isZero();
 
     // test again, but this time the earlier should override
     queue.addAfter(item, Duration.ofMillis(50));
     queue.addAfter(item, Duration.ofMillis(30));
-    assertTrue(waitForWaitingQueueToFill(queue));
-    assertTrue("should not have added", queue.length() == 0);
+    assertThat(waitForWaitingQueueToFill(queue)).isTrue();
+    assertThat(queue.length()).withFailMessage("should not have added").isZero();
 
     // Advance time
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(150);
+          return staticTime.plusMillis(150).toEpochMilli();
         });
-    assertTrue(waitForAdded(queue, 1));
+    assertThat(waitForAdded(queue, 1)).isTrue();
     item = queue.get();
     queue.done(item);
 
@@ -104,18 +103,18 @@ public class DefaultDelayingQueueTest {
     // Advance time
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(190);
+          return staticTime.plusMillis(190).toEpochMilli();
         });
-    assertTrue("should not have added", queue.length() == 0);
+    assertThat(queue.length()).withFailMessage("should not have added").isZero();
   }
 
   @Test
-  public void testCopyShifting() throws Exception {
+  void copyShifting() throws Exception {
     final Instant staticTime = Instant.now();
     DefaultDelayingQueue<String> queue = new DefaultDelayingQueue<>();
     queue.injectTimeSource(
         () -> {
-          return staticTime;
+          return staticTime.toEpochMilli();
         });
 
     final String first = "foo";
@@ -125,20 +124,20 @@ public class DefaultDelayingQueueTest {
     queue.addAfter(first, Duration.ofSeconds(1));
     queue.addAfter(second, Duration.ofMillis(500));
     queue.addAfter(third, Duration.ofMillis(250));
-    assertTrue(waitForWaitingQueueToFill(queue));
-    assertTrue("should not have added", queue.length() == 0);
+    assertThat(waitForWaitingQueueToFill(queue)).isTrue();
+    assertThat(queue.length()).withFailMessage("should not have added").isZero();
 
     queue.injectTimeSource(
         () -> {
-          return staticTime.plusMillis(2000);
+          return staticTime.plusMillis(2000).toEpochMilli();
         });
-    assertTrue(waitForAdded(queue, 3));
+    assertThat(waitForAdded(queue, 3)).isTrue();
     String actualFirst = queue.get();
-    assertEquals(actualFirst, third);
+    assertThat(third).isEqualTo(actualFirst);
     String actualSecond = queue.get();
-    assertEquals(actualSecond, second);
+    assertThat(second).isEqualTo(actualSecond);
     String actualThird = queue.get();
-    assertEquals(actualThird, first);
+    assertThat(first).isEqualTo(actualThird);
   }
 
   private boolean waitForAdded(DefaultDelayingQueue queue, int size) {

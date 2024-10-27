@@ -24,17 +24,17 @@ import java.net.HttpURLConnection;
 import java.util.List;
 
 public class KubectlDrain extends KubectlCordon {
-  private int timeoutSeconds;
+  private int gracePeriodSeconds;
   private boolean force;
   private boolean ignoreDaemonSets;
 
   KubectlDrain() {
     super(true);
-    timeoutSeconds = 30;
+    gracePeriodSeconds = 30;
   }
 
   public KubectlDrain gracePeriod(int gracePeriodSeconds) {
-    this.timeoutSeconds = gracePeriodSeconds;
+    this.gracePeriodSeconds = gracePeriodSeconds;
     return this;
   }
 
@@ -63,22 +63,27 @@ public class KubectlDrain extends KubectlCordon {
     V1Node node = performCordon();
 
     V1PodList allPods =
-        api.listPodForAllNamespaces(
-            null,
-            null,
-            "spec.nodeName=" + node.getMetadata().getName(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+        api.listPodForAllNamespaces()
+                .fieldSelector("spec.nodeName=" + node.getMetadata().getName())
+                .execute();
 
     validatePods(allPods.getItems());
 
+    boolean isDaemonSetPod;
     for (V1Pod pod : allPods.getItems()) {
-      deletePod(api, pod.getMetadata().getName(), pod.getMetadata().getNamespace());
+      isDaemonSetPod = false;
+      // at this point we know, that we have to ignore daemon set pods
+      if (pod.getMetadata().getOwnerReferences() != null) {
+        for (V1OwnerReference ref : pod.getMetadata().getOwnerReferences()) {
+          if (ref.getKind().equals("DaemonSet")) {
+            isDaemonSetPod = true;
+            break;
+          }
+        }
+      }
+      if (!isDaemonSetPod) {
+        deletePod(api, pod.getMetadata().getName(), pod.getMetadata().getNamespace());
+      }
     }
     return node;
   }
@@ -88,10 +93,7 @@ public class KubectlDrain extends KubectlCordon {
     for (V1Pod pod : pods) {
       if (pod.getMetadata().getOwnerReferences() == null) continue;
 
-      if (!force && pod.getMetadata().getOwnerReferences().size() == 0) {
-        throw new KubectlException("Pods unmanaged by a controller are present on the node");
-      }
-      // Throw if there are daemon set pods and ignore daemon set is false
+      // Throw exception if there are daemon set pods and ignore daemon set is false
       if (!ignoreDaemonSets) {
         for (V1OwnerReference ref : pod.getMetadata().getOwnerReferences()) {
           if (ref.getKind().equals("DaemonSet")) {
@@ -104,7 +106,7 @@ public class KubectlDrain extends KubectlCordon {
 
   private void deletePod(CoreV1Api api, String name, String namespace)
       throws ApiException, IOException, KubectlException {
-    api.deleteNamespacedPod(name, namespace, null, null, this.timeoutSeconds, null, null, null);
+    api.deleteNamespacedPod(name, namespace).gracePeriodSeconds(gracePeriodSeconds).execute();
     waitForPodDelete(api, name, namespace);
   }
 
@@ -113,14 +115,15 @@ public class KubectlDrain extends KubectlCordon {
     long start = System.currentTimeMillis();
     do {
       try {
-        api.readNamespacedPod(name, namespace, null);
+        api.readNamespacedPod(name, namespace).execute();
       } catch (ApiException ex) {
         if (ex.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
           return;
         }
         throw new KubectlException(ex);
       }
-    } while (System.currentTimeMillis() - start < timeoutSeconds * 1000);
+      // add 10 seconds to gracePeriod to allow the force deletion of the pod to finish
+    } while (System.currentTimeMillis() - start < (this.gracePeriodSeconds + 10) * 1000);
     throw new KubectlException("Timed out waiting for Pod delete.");
   }
 }

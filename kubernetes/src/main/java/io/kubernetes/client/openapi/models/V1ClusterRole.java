@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,62 +12,82 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi.models;
 
-import com.google.gson.annotations.SerializedName;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.kubernetes.client.openapi.models.V1AggregationRule;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1PolicyRule;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.kubernetes.client.openapi.JSON;
 
 /**
- * ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit
- * by a RoleBinding or ClusterRoleBinding.
+ * ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
  */
-@ApiModel(
-    description =
-        "ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.")
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObject {
   public static final String SERIALIZED_NAME_AGGREGATION_RULE = "aggregationRule";
-
   @SerializedName(SERIALIZED_NAME_AGGREGATION_RULE)
   private V1AggregationRule aggregationRule;
 
   public static final String SERIALIZED_NAME_API_VERSION = "apiVersion";
-
   @SerializedName(SERIALIZED_NAME_API_VERSION)
   private String apiVersion;
 
   public static final String SERIALIZED_NAME_KIND = "kind";
-
   @SerializedName(SERIALIZED_NAME_KIND)
   private String kind;
 
   public static final String SERIALIZED_NAME_METADATA = "metadata";
-
   @SerializedName(SERIALIZED_NAME_METADATA)
   private V1ObjectMeta metadata;
 
   public static final String SERIALIZED_NAME_RULES = "rules";
-
   @SerializedName(SERIALIZED_NAME_RULES)
-  private List<V1PolicyRule> rules = null;
+  private List<V1PolicyRule> rules = new ArrayList<>();
+
+  public V1ClusterRole() {
+  }
 
   public V1ClusterRole aggregationRule(V1AggregationRule aggregationRule) {
-
     this.aggregationRule = aggregationRule;
     return this;
   }
 
-  /**
+   /**
    * Get aggregationRule
-   *
    * @return aggregationRule
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1AggregationRule getAggregationRule() {
     return aggregationRule;
   }
@@ -76,24 +96,17 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     this.aggregationRule = aggregationRule;
   }
 
-  public V1ClusterRole apiVersion(String apiVersion) {
 
+  public V1ClusterRole apiVersion(String apiVersion) {
     this.apiVersion = apiVersion;
     return this;
   }
 
-  /**
-   * APIVersion defines the versioned schema of this representation of an object. Servers should
-   * convert recognized schemas to the latest internal value, and may reject unrecognized values.
-   * More info:
-   * https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-   *
+   /**
+   * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
    * @return apiVersion
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources")
+  **/
+  @jakarta.annotation.Nullable
   public String getApiVersion() {
     return apiVersion;
   }
@@ -102,24 +115,17 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     this.apiVersion = apiVersion;
   }
 
-  public V1ClusterRole kind(String kind) {
 
+  public V1ClusterRole kind(String kind) {
     this.kind = kind;
     return this;
   }
 
-  /**
-   * Kind is a string value representing the REST resource this object represents. Servers may infer
-   * this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More
-   * info:
-   * https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-   *
+   /**
+   * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
    * @return kind
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds")
+  **/
+  @jakarta.annotation.Nullable
   public String getKind() {
     return kind;
   }
@@ -128,19 +134,17 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     this.kind = kind;
   }
 
-  public V1ClusterRole metadata(V1ObjectMeta metadata) {
 
+  public V1ClusterRole metadata(V1ObjectMeta metadata) {
     this.metadata = metadata;
     return this;
   }
 
-  /**
+   /**
    * Get metadata
-   *
    * @return metadata
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1ObjectMeta getMetadata() {
     return metadata;
   }
@@ -149,8 +153,8 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     this.metadata = metadata;
   }
 
-  public V1ClusterRole rules(List<V1PolicyRule> rules) {
 
+  public V1ClusterRole rules(List<V1PolicyRule> rules) {
     this.rules = rules;
     return this;
   }
@@ -163,13 +167,11 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     return this;
   }
 
-  /**
+   /**
    * Rules holds all the PolicyRules for this ClusterRole
-   *
    * @return rules
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "Rules holds all the PolicyRules for this ClusterRole")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1PolicyRule> getRules() {
     return rules;
   }
@@ -178,8 +180,10 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
     this.rules = rules;
   }
 
+
+
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -187,11 +191,11 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
       return false;
     }
     V1ClusterRole v1ClusterRole = (V1ClusterRole) o;
-    return Objects.equals(this.aggregationRule, v1ClusterRole.aggregationRule)
-        && Objects.equals(this.apiVersion, v1ClusterRole.apiVersion)
-        && Objects.equals(this.kind, v1ClusterRole.kind)
-        && Objects.equals(this.metadata, v1ClusterRole.metadata)
-        && Objects.equals(this.rules, v1ClusterRole.rules);
+    return Objects.equals(this.aggregationRule, v1ClusterRole.aggregationRule) &&
+        Objects.equals(this.apiVersion, v1ClusterRole.apiVersion) &&
+        Objects.equals(this.kind, v1ClusterRole.kind) &&
+        Objects.equals(this.metadata, v1ClusterRole.metadata) &&
+        Objects.equals(this.rules, v1ClusterRole.rules);
   }
 
   @Override
@@ -213,12 +217,130 @@ public class V1ClusterRole implements io.kubernetes.client.common.KubernetesObje
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("aggregationRule");
+    openapiFields.add("apiVersion");
+    openapiFields.add("kind");
+    openapiFields.add("metadata");
+    openapiFields.add("rules");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Element and throws an exception if issues found
+  *
+  * @param jsonElement JSON Element
+  * @throws IOException if the JSON Element is invalid with respect to V1ClusterRole
+  */
+  public static void validateJsonElement(JsonElement jsonElement) throws IOException {
+      if (jsonElement == null) {
+        if (!V1ClusterRole.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in V1ClusterRole is not found in the empty JSON string", V1ClusterRole.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Map.Entry<String, JsonElement> entry : entries) {
+        if (!V1ClusterRole.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `V1ClusterRole` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        }
+      }
+        JsonObject jsonObj = jsonElement.getAsJsonObject();
+      // validate the optional field `aggregationRule`
+      if (jsonObj.get("aggregationRule") != null && !jsonObj.get("aggregationRule").isJsonNull()) {
+        V1AggregationRule.validateJsonElement(jsonObj.get("aggregationRule"));
+      }
+      if ((jsonObj.get("apiVersion") != null && !jsonObj.get("apiVersion").isJsonNull()) && !jsonObj.get("apiVersion").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `apiVersion` to be a primitive type in the JSON string but got `%s`", jsonObj.get("apiVersion").toString()));
+      }
+      if ((jsonObj.get("kind") != null && !jsonObj.get("kind").isJsonNull()) && !jsonObj.get("kind").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `kind` to be a primitive type in the JSON string but got `%s`", jsonObj.get("kind").toString()));
+      }
+      // validate the optional field `metadata`
+      if (jsonObj.get("metadata") != null && !jsonObj.get("metadata").isJsonNull()) {
+        V1ObjectMeta.validateJsonElement(jsonObj.get("metadata"));
+      }
+      if (jsonObj.get("rules") != null && !jsonObj.get("rules").isJsonNull()) {
+        JsonArray jsonArrayrules = jsonObj.getAsJsonArray("rules");
+        if (jsonArrayrules != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("rules").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `rules` to be an array in the JSON string but got `%s`", jsonObj.get("rules").toString()));
+          }
+
+          // validate the optional field `rules` (array)
+          for (int i = 0; i < jsonArrayrules.size(); i++) {
+            V1PolicyRule.validateJsonElement(jsonArrayrules.get(i));
+          };
+        }
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!V1ClusterRole.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'V1ClusterRole' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<V1ClusterRole> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(V1ClusterRole.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<V1ClusterRole>() {
+           @Override
+           public void write(JsonWriter out, V1ClusterRole value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public V1ClusterRole read(JsonReader in) throws IOException {
+             JsonElement jsonElement = elementAdapter.read(in);
+             validateJsonElement(jsonElement);
+             return thisAdapter.fromJsonTree(jsonElement);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of V1ClusterRole given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of V1ClusterRole
+  * @throws IOException if the JSON string is invalid with respect to V1ClusterRole
+  */
+  public static V1ClusterRole fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, V1ClusterRole.class);
+  }
+
+ /**
+  * Convert an instance of V1ClusterRole to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }

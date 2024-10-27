@@ -85,9 +85,12 @@ public class Quantity {
     }
 
     Quantity otherQuantity = (Quantity) o;
+    return ObjectUtils.compare(this.number, otherQuantity.number) == 0;
+  }
 
-    return ObjectUtils.compare(this.number, otherQuantity.number) == 0
-        && Objects.equals(this.format, otherQuantity.format);
+  @Override
+  public int hashCode() {
+    return Objects.hash(number);
   }
 
   public static class QuantityAdapter extends TypeAdapter<Quantity> {

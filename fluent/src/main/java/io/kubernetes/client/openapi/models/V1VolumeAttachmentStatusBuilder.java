@@ -1,87 +1,34 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
 import io.kubernetes.client.fluent.VisitableBuilder;
-
-public class V1VolumeAttachmentStatusBuilder
-    extends V1VolumeAttachmentStatusFluentImpl<V1VolumeAttachmentStatusBuilder>
-    implements VisitableBuilder<V1VolumeAttachmentStatus, V1VolumeAttachmentStatusBuilder> {
+public class V1VolumeAttachmentStatusBuilder extends V1VolumeAttachmentStatusFluent<V1VolumeAttachmentStatusBuilder> implements VisitableBuilder<V1VolumeAttachmentStatus,V1VolumeAttachmentStatusBuilder>{
   public V1VolumeAttachmentStatusBuilder() {
-    this(false);
+    this(new V1VolumeAttachmentStatus());
   }
-
-  public V1VolumeAttachmentStatusBuilder(Boolean validationEnabled) {
-    this(new V1VolumeAttachmentStatus(), validationEnabled);
-  }
-
+  
   public V1VolumeAttachmentStatusBuilder(V1VolumeAttachmentStatusFluent<?> fluent) {
-    this(fluent, false);
+    this(fluent, new V1VolumeAttachmentStatus());
   }
-
-  public V1VolumeAttachmentStatusBuilder(
-      V1VolumeAttachmentStatusFluent<?> fluent, Boolean validationEnabled) {
-    this(fluent, new V1VolumeAttachmentStatus(), validationEnabled);
-  }
-
-  public V1VolumeAttachmentStatusBuilder(
-      V1VolumeAttachmentStatusFluent<?> fluent, V1VolumeAttachmentStatus instance) {
-    this(fluent, instance, false);
-  }
-
-  public V1VolumeAttachmentStatusBuilder(
-      V1VolumeAttachmentStatusFluent<?> fluent,
-      V1VolumeAttachmentStatus instance,
-      Boolean validationEnabled) {
+  
+  public V1VolumeAttachmentStatusBuilder(V1VolumeAttachmentStatusFluent<?> fluent,V1VolumeAttachmentStatus instance) {
     this.fluent = fluent;
-    fluent.withAttachError(instance.getAttachError());
-
-    fluent.withAttached(instance.getAttached());
-
-    fluent.withAttachmentMetadata(instance.getAttachmentMetadata());
-
-    fluent.withDetachError(instance.getDetachError());
-
-    this.validationEnabled = validationEnabled;
+    fluent.copyInstance(instance);
   }
-
+  
   public V1VolumeAttachmentStatusBuilder(V1VolumeAttachmentStatus instance) {
-    this(instance, false);
-  }
-
-  public V1VolumeAttachmentStatusBuilder(
-      V1VolumeAttachmentStatus instance, Boolean validationEnabled) {
     this.fluent = this;
-    this.withAttachError(instance.getAttachError());
-
-    this.withAttached(instance.getAttached());
-
-    this.withAttachmentMetadata(instance.getAttachmentMetadata());
-
-    this.withDetachError(instance.getDetachError());
-
-    this.validationEnabled = validationEnabled;
+    this.copyInstance(instance);
   }
-
   V1VolumeAttachmentStatusFluent<?> fluent;
-  Boolean validationEnabled;
-
+  
   public V1VolumeAttachmentStatus build() {
     V1VolumeAttachmentStatus buildable = new V1VolumeAttachmentStatus();
-    buildable.setAttachError(fluent.getAttachError());
+    buildable.setAttachError(fluent.buildAttachError());
     buildable.setAttached(fluent.getAttached());
     buildable.setAttachmentMetadata(fluent.getAttachmentMetadata());
-    buildable.setDetachError(fluent.getDetachError());
+    buildable.setDetachError(fluent.buildDetachError());
     return buildable;
   }
+  
+
 }

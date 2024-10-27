@@ -1,88 +1,35 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
 import io.kubernetes.client.fluent.VisitableBuilder;
-
-public class V1FlexVolumeSourceBuilder
-    extends V1FlexVolumeSourceFluentImpl<V1FlexVolumeSourceBuilder>
-    implements VisitableBuilder<V1FlexVolumeSource, V1FlexVolumeSourceBuilder> {
+public class V1FlexVolumeSourceBuilder extends V1FlexVolumeSourceFluent<V1FlexVolumeSourceBuilder> implements VisitableBuilder<V1FlexVolumeSource,V1FlexVolumeSourceBuilder>{
   public V1FlexVolumeSourceBuilder() {
-    this(false);
+    this(new V1FlexVolumeSource());
   }
-
-  public V1FlexVolumeSourceBuilder(Boolean validationEnabled) {
-    this(new V1FlexVolumeSource(), validationEnabled);
-  }
-
+  
   public V1FlexVolumeSourceBuilder(V1FlexVolumeSourceFluent<?> fluent) {
-    this(fluent, false);
+    this(fluent, new V1FlexVolumeSource());
   }
-
-  public V1FlexVolumeSourceBuilder(V1FlexVolumeSourceFluent<?> fluent, Boolean validationEnabled) {
-    this(fluent, new V1FlexVolumeSource(), validationEnabled);
-  }
-
-  public V1FlexVolumeSourceBuilder(
-      V1FlexVolumeSourceFluent<?> fluent, V1FlexVolumeSource instance) {
-    this(fluent, instance, false);
-  }
-
-  public V1FlexVolumeSourceBuilder(
-      V1FlexVolumeSourceFluent<?> fluent, V1FlexVolumeSource instance, Boolean validationEnabled) {
+  
+  public V1FlexVolumeSourceBuilder(V1FlexVolumeSourceFluent<?> fluent,V1FlexVolumeSource instance) {
     this.fluent = fluent;
-    fluent.withDriver(instance.getDriver());
-
-    fluent.withFsType(instance.getFsType());
-
-    fluent.withOptions(instance.getOptions());
-
-    fluent.withReadOnly(instance.getReadOnly());
-
-    fluent.withSecretRef(instance.getSecretRef());
-
-    this.validationEnabled = validationEnabled;
+    fluent.copyInstance(instance);
   }
-
+  
   public V1FlexVolumeSourceBuilder(V1FlexVolumeSource instance) {
-    this(instance, false);
-  }
-
-  public V1FlexVolumeSourceBuilder(V1FlexVolumeSource instance, Boolean validationEnabled) {
     this.fluent = this;
-    this.withDriver(instance.getDriver());
-
-    this.withFsType(instance.getFsType());
-
-    this.withOptions(instance.getOptions());
-
-    this.withReadOnly(instance.getReadOnly());
-
-    this.withSecretRef(instance.getSecretRef());
-
-    this.validationEnabled = validationEnabled;
+    this.copyInstance(instance);
   }
-
   V1FlexVolumeSourceFluent<?> fluent;
-  Boolean validationEnabled;
-
+  
   public V1FlexVolumeSource build() {
     V1FlexVolumeSource buildable = new V1FlexVolumeSource();
     buildable.setDriver(fluent.getDriver());
     buildable.setFsType(fluent.getFsType());
     buildable.setOptions(fluent.getOptions());
     buildable.setReadOnly(fluent.getReadOnly());
-    buildable.setSecretRef(fluent.getSecretRef());
+    buildable.setSecretRef(fluent.buildSecretRef());
     return buildable;
   }
+  
+
 }

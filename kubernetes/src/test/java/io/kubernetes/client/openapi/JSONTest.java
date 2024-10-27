@@ -12,19 +12,36 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.time.OffsetDateTime;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import io.kubernetes.client.openapi.models.V1ListMeta;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1Status;
 import okio.ByteString;
-import org.junit.Test;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-public class JSONTest {
+@TestMethodOrder(OrderAnnotation.class)
+class JSONTest {
 
-  private final JSON json = new JSON();
+  @Order(0)
+  @Test
+  void serializeWithStaticMethod() {
+    JSON.serialize(new V1ObjectMeta());
+  }
 
   @Test
-  public void testSerializeByteArray() {
+  void serializeByteArray() {
+    JSON json = new JSON();
     final String plainText = "string that contains '=' when encoded";
     final String base64String = json.serialize(plainText.getBytes());
     // serialize returns string surrounded by quotes: "\"[base64]\""
@@ -32,45 +49,63 @@ public class JSONTest {
     final ByteString byteStr = ByteString.decodeBase64(pureString);
 
     // Check encoded to valid base64
-    assertNotNull(byteStr);
+    assertThat(byteStr).isNotNull();
 
     // Check encoded string correctly
     final String decodedText = new String(byteStr.toByteArray());
-    assertThat(decodedText, is(plainText));
+    assertThat(decodedText).isEqualTo(plainText);
   }
 
   @Test
-  public void testOffsetDateTime1e6Parse() {
+  void offsetDateTime1e6Parse() {
+    JSON json = new JSON();
     String timeStr = "\"2018-04-03T11:32:26.123456Z\"";
     OffsetDateTime dateTime = json.deserialize(timeStr, OffsetDateTime.class);
     String serializedTsStr = json.serialize(dateTime);
-    assertEquals(timeStr, serializedTsStr);
+    assertThat(serializedTsStr).isEqualTo(timeStr);
   }
 
   @Test
-  public void testOffsetDateTime1e4Parse() {
+  void offsetDateTime1e4Parse() {
+    JSON json = new JSON();
     String timeStr = "\"2018-04-03T11:32:26.1234Z\"";
     OffsetDateTime dateTime = json.deserialize(timeStr, OffsetDateTime.class);
     String serializedTsStr = json.serialize(dateTime);
     String expectedStr = "\"2018-04-03T11:32:26.123400Z\"";
-    assertEquals(expectedStr, serializedTsStr);
+    assertThat(serializedTsStr).isEqualTo(expectedStr);
   }
 
   @Test
-  public void testOffsetDateTime1e3Parse() {
+  void offsetDateTime1e3Parse() {
+    JSON json = new JSON();
     String timeStr = "\"2018-04-03T11:32:26.123Z\"";
     OffsetDateTime dateTime = json.deserialize(timeStr, OffsetDateTime.class);
     String serializedTsStr = json.serialize(dateTime);
     String expectedStr = "\"2018-04-03T11:32:26.123000Z\"";
-    assertEquals(expectedStr, serializedTsStr);
+    assertThat(serializedTsStr).isEqualTo(expectedStr);
   }
 
   @Test
-  public void testOffsetDateTimeNoFractionParse() {
+  void offsetDateTimeNoFractionParse() {
+    JSON json = new JSON();
     String timeStr = "\"2018-04-03T11:32:26Z\"";
     OffsetDateTime dateTime = json.deserialize(timeStr, OffsetDateTime.class);
     String serializedTsStr = json.serialize(dateTime);
     String expectedStr = "\"2018-04-03T11:32:26.000000Z\"";
-    assertEquals(expectedStr, serializedTsStr);
+    assertThat(serializedTsStr).isEqualTo(expectedStr);
+  }
+
+  @Test
+  void v1StatusTypeValidationDisabled() throws IOException {
+    Gson gson = new Gson();
+    JsonReader jsonReader = new JsonReader(new StringReader("{\"foo\":\"bar\"}"));
+    new V1Status.CustomTypeAdapterFactory().create(gson, TypeToken.get(V1Status.class)).read(jsonReader);
+  }
+
+  @Test
+  void v1ListMetaTypeValidationDisabled() throws IOException {
+    Gson gson = new Gson();
+    JsonReader jsonReader = new JsonReader(new StringReader("{\"foo\":\"bar\"}"));
+    new V1ListMeta.CustomTypeAdapterFactory().create(gson, TypeToken.get(V1ListMeta.class)).read(jsonReader);
   }
 }

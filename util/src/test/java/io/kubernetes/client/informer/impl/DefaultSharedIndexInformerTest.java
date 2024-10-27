@@ -17,41 +17,66 @@ import io.kubernetes.client.informer.cache.DeltaFIFO;
 import io.kubernetes.client.informer.cache.Indexer;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.util.Threads;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.BiConsumer;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class DefaultSharedIndexInformerTest {
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class DefaultSharedIndexInformerTest {
 
   private static final Class<V1Pod> anyApiType = V1Pod.class;
   private static final long anyResyncPeriod = 1000L;
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private ListerWatcher<V1Pod, V1PodList> listerWatcher;
   @Mock private DeltaFIFO deltaFIFOMock;
   @Mock private Indexer<V1Pod> indexerMock;
   @Mock private BiConsumer<Class<V1Pod>, Throwable> exceptionHandler;
+  @Mock private ThreadFactory threadFactory;
+  @Mock private Thread thread;
 
   @Test
-  public void testConstructorWithExceptionHandlerExists() {
+  void constructorUsesDefaultThreadFactory() {
+    when(threadFactory.newThread(any())).thenReturn(thread);
+
+    try {
+      Threads.setDefaultThreadFactory(threadFactory);
+      new DefaultSharedIndexInformer<>(
+          anyApiType, listerWatcher, anyResyncPeriod, deltaFIFOMock, indexerMock, exceptionHandler);
+    } finally { // revert to default
+      Threads.setDefaultThreadFactory(Executors.defaultThreadFactory());
+    }
+
+    verify(threadFactory).newThread(any());
+    verify(thread).setName("informer-controller-V1Pod");
+    verifyNoMoreInteractions(threadFactory, thread);
+  }
+
+  @Test
+  void constructorWithExceptionHandlerExists() {
 
     new DefaultSharedIndexInformer<>(
         anyApiType, listerWatcher, anyResyncPeriod, deltaFIFOMock, indexerMock, exceptionHandler);
   }
 
   @Test
-  public void testConstructorWithoutExceptionHandlerExists() {
+  void constructorWithoutExceptionHandlerExists() {
 
     new DefaultSharedIndexInformer<>(
         anyApiType, listerWatcher, anyResyncPeriod, deltaFIFOMock, indexerMock);
   }
 
   @Test
-  public void testMinimalConstructorExists() {
+  void minimalConstructorExists() {
 
     new DefaultSharedIndexInformer<>(anyApiType, listerWatcher, anyResyncPeriod);
   }

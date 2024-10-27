@@ -12,7 +12,7 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.controller;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import io.kubernetes.client.extended.controller.reconciler.Reconciler;
@@ -26,18 +26,20 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DefaultControllerTest {
+@ExtendWith(MockitoExtension.class)
+class DefaultControllerTest {
 
   private ExecutorService controllerThead = Executors.newSingleThreadExecutor();
   private RateLimitingQueue<Request> workQueue =
@@ -53,16 +55,17 @@ public class DefaultControllerTest {
     }
   }
 
-  @Before
-  public void setUp() throws Exception {}
+  @BeforeEach
+  void setUp() {}
 
-  @After
-  public void tearDown() throws Exception {}
+  @AfterEach
+  void tearDown() {}
 
   @Mock private Reconciler mockReconciler;
 
-  @Test(timeout = 90000)
-  public void testStartingStoppingController() throws InterruptedException {
+  @Test
+  @Timeout(value = 90000, unit = TimeUnit.MILLISECONDS)
+  void startingStoppingController() throws InterruptedException {
 
     DefaultController testController = new DefaultController("", mockReconciler, workQueue);
 
@@ -102,8 +105,9 @@ public class DefaultControllerTest {
     verify(mockReconciler, times(0)).reconcile(request2);
   }
 
-  @Test(timeout = 90000)
-  public void testControllerWontStartBeforeReady() throws InterruptedException {
+  @Test
+  @Timeout(value = 90000, unit = TimeUnit.MILLISECONDS)
+  void controllerWontStartBeforeReady() throws InterruptedException {
 
     Request request1 = new Request("test1");
     final Semaphore latch = new Semaphore(1);
@@ -139,8 +143,9 @@ public class DefaultControllerTest {
     verify(mockReconciler, times(1)).reconcile(request1);
   }
 
-  @Test(timeout = 90000)
-  public void testControllerKeepsWorkingWhenReconcilerAbortsWithRuntimeException()
+  @Test
+  @Timeout(value = 90000, unit = TimeUnit.MILLISECONDS)
+  void controllerKeepsWorkingWhenReconcilerAbortsWithRuntimeException()
       throws InterruptedException {
     AtomicBoolean aborts = new AtomicBoolean(true);
     AtomicBoolean resumed = new AtomicBoolean(false);
@@ -181,7 +186,7 @@ public class DefaultControllerTest {
     latch.acquire();
     testController.shutdown();
 
-    assertTrue(resumed.get());
-    assertTrue(finishedRequests.size() >= 1);
+    assertThat(resumed).isTrue();
+    assertThat(finishedRequests).isNotEmpty();
   }
 }

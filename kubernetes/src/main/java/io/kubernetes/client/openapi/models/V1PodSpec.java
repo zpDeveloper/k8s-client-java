@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,227 +12,232 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi.models;
 
+import java.util.Objects;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import io.kubernetes.client.custom.Quantity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.kubernetes.client.openapi.models.V1Affinity;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1EphemeralContainer;
+import io.kubernetes.client.openapi.models.V1HostAlias;
+import io.kubernetes.client.openapi.models.V1LocalObjectReference;
+import io.kubernetes.client.openapi.models.V1PodDNSConfig;
+import io.kubernetes.client.openapi.models.V1PodOS;
+import io.kubernetes.client.openapi.models.V1PodReadinessGate;
+import io.kubernetes.client.openapi.models.V1PodResourceClaim;
+import io.kubernetes.client.openapi.models.V1PodSchedulingGate;
+import io.kubernetes.client.openapi.models.V1PodSecurityContext;
+import io.kubernetes.client.openapi.models.V1Toleration;
+import io.kubernetes.client.openapi.models.V1TopologySpreadConstraint;
+import io.kubernetes.client.openapi.models.V1Volume;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-/** PodSpec is a description of a pod. */
-@ApiModel(description = "PodSpec is a description of a pod.")
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.kubernetes.client.openapi.JSON;
+
+/**
+ * PodSpec is a description of a pod.
+ */
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class V1PodSpec {
   public static final String SERIALIZED_NAME_ACTIVE_DEADLINE_SECONDS = "activeDeadlineSeconds";
-
   @SerializedName(SERIALIZED_NAME_ACTIVE_DEADLINE_SECONDS)
   private Long activeDeadlineSeconds;
 
   public static final String SERIALIZED_NAME_AFFINITY = "affinity";
-
   @SerializedName(SERIALIZED_NAME_AFFINITY)
   private V1Affinity affinity;
 
-  public static final String SERIALIZED_NAME_AUTOMOUNT_SERVICE_ACCOUNT_TOKEN =
-      "automountServiceAccountToken";
-
+  public static final String SERIALIZED_NAME_AUTOMOUNT_SERVICE_ACCOUNT_TOKEN = "automountServiceAccountToken";
   @SerializedName(SERIALIZED_NAME_AUTOMOUNT_SERVICE_ACCOUNT_TOKEN)
   private Boolean automountServiceAccountToken;
 
   public static final String SERIALIZED_NAME_CONTAINERS = "containers";
-
   @SerializedName(SERIALIZED_NAME_CONTAINERS)
   private List<V1Container> containers = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_DNS_CONFIG = "dnsConfig";
-
   @SerializedName(SERIALIZED_NAME_DNS_CONFIG)
   private V1PodDNSConfig dnsConfig;
 
   public static final String SERIALIZED_NAME_DNS_POLICY = "dnsPolicy";
-
   @SerializedName(SERIALIZED_NAME_DNS_POLICY)
   private String dnsPolicy;
 
   public static final String SERIALIZED_NAME_ENABLE_SERVICE_LINKS = "enableServiceLinks";
-
   @SerializedName(SERIALIZED_NAME_ENABLE_SERVICE_LINKS)
   private Boolean enableServiceLinks;
 
   public static final String SERIALIZED_NAME_EPHEMERAL_CONTAINERS = "ephemeralContainers";
-
   @SerializedName(SERIALIZED_NAME_EPHEMERAL_CONTAINERS)
-  private List<V1EphemeralContainer> ephemeralContainers = null;
+  private List<V1EphemeralContainer> ephemeralContainers = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_HOST_ALIASES = "hostAliases";
-
   @SerializedName(SERIALIZED_NAME_HOST_ALIASES)
-  private List<V1HostAlias> hostAliases = null;
+  private List<V1HostAlias> hostAliases = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_HOST_I_P_C = "hostIPC";
-
   @SerializedName(SERIALIZED_NAME_HOST_I_P_C)
   private Boolean hostIPC;
 
   public static final String SERIALIZED_NAME_HOST_NETWORK = "hostNetwork";
-
   @SerializedName(SERIALIZED_NAME_HOST_NETWORK)
   private Boolean hostNetwork;
 
   public static final String SERIALIZED_NAME_HOST_P_I_D = "hostPID";
-
   @SerializedName(SERIALIZED_NAME_HOST_P_I_D)
   private Boolean hostPID;
 
   public static final String SERIALIZED_NAME_HOST_USERS = "hostUsers";
-
   @SerializedName(SERIALIZED_NAME_HOST_USERS)
   private Boolean hostUsers;
 
   public static final String SERIALIZED_NAME_HOSTNAME = "hostname";
-
   @SerializedName(SERIALIZED_NAME_HOSTNAME)
   private String hostname;
 
   public static final String SERIALIZED_NAME_IMAGE_PULL_SECRETS = "imagePullSecrets";
-
   @SerializedName(SERIALIZED_NAME_IMAGE_PULL_SECRETS)
-  private List<V1LocalObjectReference> imagePullSecrets = null;
+  private List<V1LocalObjectReference> imagePullSecrets = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_INIT_CONTAINERS = "initContainers";
-
   @SerializedName(SERIALIZED_NAME_INIT_CONTAINERS)
-  private List<V1Container> initContainers = null;
+  private List<V1Container> initContainers = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_NODE_NAME = "nodeName";
-
   @SerializedName(SERIALIZED_NAME_NODE_NAME)
   private String nodeName;
 
   public static final String SERIALIZED_NAME_NODE_SELECTOR = "nodeSelector";
-
   @SerializedName(SERIALIZED_NAME_NODE_SELECTOR)
-  private Map<String, String> nodeSelector = null;
+  private Map<String, String> nodeSelector = new HashMap<>();
 
   public static final String SERIALIZED_NAME_OS = "os";
-
   @SerializedName(SERIALIZED_NAME_OS)
   private V1PodOS os;
 
   public static final String SERIALIZED_NAME_OVERHEAD = "overhead";
-
   @SerializedName(SERIALIZED_NAME_OVERHEAD)
-  private Map<String, Quantity> overhead = null;
+  private Map<String, Quantity> overhead = new HashMap<>();
 
   public static final String SERIALIZED_NAME_PREEMPTION_POLICY = "preemptionPolicy";
-
   @SerializedName(SERIALIZED_NAME_PREEMPTION_POLICY)
   private String preemptionPolicy;
 
   public static final String SERIALIZED_NAME_PRIORITY = "priority";
-
   @SerializedName(SERIALIZED_NAME_PRIORITY)
   private Integer priority;
 
   public static final String SERIALIZED_NAME_PRIORITY_CLASS_NAME = "priorityClassName";
-
   @SerializedName(SERIALIZED_NAME_PRIORITY_CLASS_NAME)
   private String priorityClassName;
 
   public static final String SERIALIZED_NAME_READINESS_GATES = "readinessGates";
-
   @SerializedName(SERIALIZED_NAME_READINESS_GATES)
-  private List<V1PodReadinessGate> readinessGates = null;
+  private List<V1PodReadinessGate> readinessGates = new ArrayList<>();
+
+  public static final String SERIALIZED_NAME_RESOURCE_CLAIMS = "resourceClaims";
+  @SerializedName(SERIALIZED_NAME_RESOURCE_CLAIMS)
+  private List<V1PodResourceClaim> resourceClaims = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_RESTART_POLICY = "restartPolicy";
-
   @SerializedName(SERIALIZED_NAME_RESTART_POLICY)
   private String restartPolicy;
 
   public static final String SERIALIZED_NAME_RUNTIME_CLASS_NAME = "runtimeClassName";
-
   @SerializedName(SERIALIZED_NAME_RUNTIME_CLASS_NAME)
   private String runtimeClassName;
 
   public static final String SERIALIZED_NAME_SCHEDULER_NAME = "schedulerName";
-
   @SerializedName(SERIALIZED_NAME_SCHEDULER_NAME)
   private String schedulerName;
 
-  public static final String SERIALIZED_NAME_SECURITY_CONTEXT = "securityContext";
+  public static final String SERIALIZED_NAME_SCHEDULING_GATES = "schedulingGates";
+  @SerializedName(SERIALIZED_NAME_SCHEDULING_GATES)
+  private List<V1PodSchedulingGate> schedulingGates = new ArrayList<>();
 
+  public static final String SERIALIZED_NAME_SECURITY_CONTEXT = "securityContext";
   @SerializedName(SERIALIZED_NAME_SECURITY_CONTEXT)
   private V1PodSecurityContext securityContext;
 
   public static final String SERIALIZED_NAME_SERVICE_ACCOUNT = "serviceAccount";
-
   @SerializedName(SERIALIZED_NAME_SERVICE_ACCOUNT)
   private String serviceAccount;
 
   public static final String SERIALIZED_NAME_SERVICE_ACCOUNT_NAME = "serviceAccountName";
-
   @SerializedName(SERIALIZED_NAME_SERVICE_ACCOUNT_NAME)
   private String serviceAccountName;
 
   public static final String SERIALIZED_NAME_SET_HOSTNAME_AS_F_Q_D_N = "setHostnameAsFQDN";
-
   @SerializedName(SERIALIZED_NAME_SET_HOSTNAME_AS_F_Q_D_N)
   private Boolean setHostnameAsFQDN;
 
   public static final String SERIALIZED_NAME_SHARE_PROCESS_NAMESPACE = "shareProcessNamespace";
-
   @SerializedName(SERIALIZED_NAME_SHARE_PROCESS_NAMESPACE)
   private Boolean shareProcessNamespace;
 
   public static final String SERIALIZED_NAME_SUBDOMAIN = "subdomain";
-
   @SerializedName(SERIALIZED_NAME_SUBDOMAIN)
   private String subdomain;
 
-  public static final String SERIALIZED_NAME_TERMINATION_GRACE_PERIOD_SECONDS =
-      "terminationGracePeriodSeconds";
-
+  public static final String SERIALIZED_NAME_TERMINATION_GRACE_PERIOD_SECONDS = "terminationGracePeriodSeconds";
   @SerializedName(SERIALIZED_NAME_TERMINATION_GRACE_PERIOD_SECONDS)
   private Long terminationGracePeriodSeconds;
 
   public static final String SERIALIZED_NAME_TOLERATIONS = "tolerations";
-
   @SerializedName(SERIALIZED_NAME_TOLERATIONS)
-  private List<V1Toleration> tolerations = null;
+  private List<V1Toleration> tolerations = new ArrayList<>();
 
-  public static final String SERIALIZED_NAME_TOPOLOGY_SPREAD_CONSTRAINTS =
-      "topologySpreadConstraints";
-
+  public static final String SERIALIZED_NAME_TOPOLOGY_SPREAD_CONSTRAINTS = "topologySpreadConstraints";
   @SerializedName(SERIALIZED_NAME_TOPOLOGY_SPREAD_CONSTRAINTS)
-  private List<V1TopologySpreadConstraint> topologySpreadConstraints = null;
+  private List<V1TopologySpreadConstraint> topologySpreadConstraints = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_VOLUMES = "volumes";
-
   @SerializedName(SERIALIZED_NAME_VOLUMES)
-  private List<V1Volume> volumes = null;
+  private List<V1Volume> volumes = new ArrayList<>();
+
+  public V1PodSpec() {
+  }
 
   public V1PodSpec activeDeadlineSeconds(Long activeDeadlineSeconds) {
-
     this.activeDeadlineSeconds = activeDeadlineSeconds;
     return this;
   }
 
-  /**
-   * Optional duration in seconds the pod may be active on the node relative to StartTime before the
-   * system will actively try to mark it failed and kill associated containers. Value must be a
-   * positive integer.
-   *
+   /**
+   * Optional duration in seconds the pod may be active on the node relative to StartTime before the system will actively try to mark it failed and kill associated containers. Value must be a positive integer.
    * @return activeDeadlineSeconds
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Optional duration in seconds the pod may be active on the node relative to StartTime before the system will actively try to mark it failed and kill associated containers. Value must be a positive integer.")
+  **/
+  @jakarta.annotation.Nullable
   public Long getActiveDeadlineSeconds() {
     return activeDeadlineSeconds;
   }
@@ -241,19 +246,17 @@ public class V1PodSpec {
     this.activeDeadlineSeconds = activeDeadlineSeconds;
   }
 
-  public V1PodSpec affinity(V1Affinity affinity) {
 
+  public V1PodSpec affinity(V1Affinity affinity) {
     this.affinity = affinity;
     return this;
   }
 
-  /**
+   /**
    * Get affinity
-   *
    * @return affinity
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1Affinity getAffinity() {
     return affinity;
   }
@@ -262,22 +265,17 @@ public class V1PodSpec {
     this.affinity = affinity;
   }
 
-  public V1PodSpec automountServiceAccountToken(Boolean automountServiceAccountToken) {
 
+  public V1PodSpec automountServiceAccountToken(Boolean automountServiceAccountToken) {
     this.automountServiceAccountToken = automountServiceAccountToken;
     return this;
   }
 
-  /**
-   * AutomountServiceAccountToken indicates whether a service account token should be automatically
-   * mounted.
-   *
+   /**
+   * AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
    * @return automountServiceAccountToken
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getAutomountServiceAccountToken() {
     return automountServiceAccountToken;
   }
@@ -286,27 +284,25 @@ public class V1PodSpec {
     this.automountServiceAccountToken = automountServiceAccountToken;
   }
 
-  public V1PodSpec containers(List<V1Container> containers) {
 
+  public V1PodSpec containers(List<V1Container> containers) {
     this.containers = containers;
     return this;
   }
 
   public V1PodSpec addContainersItem(V1Container containersItem) {
+    if (this.containers == null) {
+      this.containers = new ArrayList<>();
+    }
     this.containers.add(containersItem);
     return this;
   }
 
-  /**
-   * List of containers belonging to the pod. Containers cannot currently be added or removed. There
-   * must be at least one container in a Pod. Cannot be updated.
-   *
+   /**
+   * List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
    * @return containers
-   */
-  @ApiModelProperty(
-      required = true,
-      value =
-          "List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.")
+  **/
+  @jakarta.annotation.Nonnull
   public List<V1Container> getContainers() {
     return containers;
   }
@@ -315,19 +311,17 @@ public class V1PodSpec {
     this.containers = containers;
   }
 
-  public V1PodSpec dnsConfig(V1PodDNSConfig dnsConfig) {
 
+  public V1PodSpec dnsConfig(V1PodDNSConfig dnsConfig) {
     this.dnsConfig = dnsConfig;
     return this;
   }
 
-  /**
+   /**
    * Get dnsConfig
-   *
    * @return dnsConfig
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1PodDNSConfig getDnsConfig() {
     return dnsConfig;
   }
@@ -336,25 +330,17 @@ public class V1PodSpec {
     this.dnsConfig = dnsConfig;
   }
 
-  public V1PodSpec dnsPolicy(String dnsPolicy) {
 
+  public V1PodSpec dnsPolicy(String dnsPolicy) {
     this.dnsPolicy = dnsPolicy;
     return this;
   }
 
-  /**
-   * Set DNS policy for the pod. Defaults to \&quot;ClusterFirst\&quot;. Valid values are
-   * &#39;ClusterFirstWithHostNet&#39;, &#39;ClusterFirst&#39;, &#39;Default&#39; or &#39;None&#39;.
-   * DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To
-   * have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to
-   * &#39;ClusterFirstWithHostNet&#39;.
-   *
+   /**
+   * Set DNS policy for the pod. Defaults to \&quot;ClusterFirst\&quot;. Valid values are &#39;ClusterFirstWithHostNet&#39;, &#39;ClusterFirst&#39;, &#39;Default&#39; or &#39;None&#39;. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to &#39;ClusterFirstWithHostNet&#39;.
    * @return dnsPolicy
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Set DNS policy for the pod. Defaults to \"ClusterFirst\". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.  ")
+  **/
+  @jakarta.annotation.Nullable
   public String getDnsPolicy() {
     return dnsPolicy;
   }
@@ -363,23 +349,17 @@ public class V1PodSpec {
     this.dnsPolicy = dnsPolicy;
   }
 
-  public V1PodSpec enableServiceLinks(Boolean enableServiceLinks) {
 
+  public V1PodSpec enableServiceLinks(Boolean enableServiceLinks) {
     this.enableServiceLinks = enableServiceLinks;
     return this;
   }
 
-  /**
-   * EnableServiceLinks indicates whether information about services should be injected into
-   * pod&#39;s environment variables, matching the syntax of Docker links. Optional: Defaults to
-   * true.
-   *
+   /**
+   * EnableServiceLinks indicates whether information about services should be injected into pod&#39;s environment variables, matching the syntax of Docker links. Optional: Defaults to true.
    * @return enableServiceLinks
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "EnableServiceLinks indicates whether information about services should be injected into pod's environment variables, matching the syntax of Docker links. Optional: Defaults to true.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getEnableServiceLinks() {
     return enableServiceLinks;
   }
@@ -388,8 +368,8 @@ public class V1PodSpec {
     this.enableServiceLinks = enableServiceLinks;
   }
 
-  public V1PodSpec ephemeralContainers(List<V1EphemeralContainer> ephemeralContainers) {
 
+  public V1PodSpec ephemeralContainers(List<V1EphemeralContainer> ephemeralContainers) {
     this.ephemeralContainers = ephemeralContainers;
     return this;
   }
@@ -402,18 +382,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing
-   * pod to perform user-initiated actions such as debugging. This list cannot be specified when
-   * creating a pod, and it cannot be modified by updating the pod spec. In order to add an
-   * ephemeral container to an existing pod, use the pod&#39;s ephemeralcontainers subresource.
-   *
+   /**
+   * List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod&#39;s ephemeralcontainers subresource.
    * @return ephemeralContainers
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1EphemeralContainer> getEphemeralContainers() {
     return ephemeralContainers;
   }
@@ -422,8 +395,8 @@ public class V1PodSpec {
     this.ephemeralContainers = ephemeralContainers;
   }
 
-  public V1PodSpec hostAliases(List<V1HostAlias> hostAliases) {
 
+  public V1PodSpec hostAliases(List<V1HostAlias> hostAliases) {
     this.hostAliases = hostAliases;
     return this;
   }
@@ -436,16 +409,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * HostAliases is an optional list of hosts and IPs that will be injected into the pod&#39;s hosts
-   * file if specified. This is only valid for non-hostNetwork pods.
-   *
+   /**
+   * HostAliases is an optional list of hosts and IPs that will be injected into the pod&#39;s hosts file if specified.
    * @return hostAliases
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified. This is only valid for non-hostNetwork pods.")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1HostAlias> getHostAliases() {
     return hostAliases;
   }
@@ -454,19 +422,17 @@ public class V1PodSpec {
     this.hostAliases = hostAliases;
   }
 
-  public V1PodSpec hostIPC(Boolean hostIPC) {
 
+  public V1PodSpec hostIPC(Boolean hostIPC) {
     this.hostIPC = hostIPC;
     return this;
   }
 
-  /**
+   /**
    * Use the host&#39;s ipc namespace. Optional: Default to false.
-   *
    * @return hostIPC
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "Use the host's ipc namespace. Optional: Default to false.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getHostIPC() {
     return hostIPC;
   }
@@ -475,22 +441,17 @@ public class V1PodSpec {
     this.hostIPC = hostIPC;
   }
 
-  public V1PodSpec hostNetwork(Boolean hostNetwork) {
 
+  public V1PodSpec hostNetwork(Boolean hostNetwork) {
     this.hostNetwork = hostNetwork;
     return this;
   }
 
-  /**
-   * Host networking requested for this pod. Use the host&#39;s network namespace. If this option is
-   * set, the ports that will be used must be specified. Default to false.
-   *
+   /**
+   * Host networking requested for this pod. Use the host&#39;s network namespace. If this option is set, the ports that will be used must be specified. Default to false.
    * @return hostNetwork
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getHostNetwork() {
     return hostNetwork;
   }
@@ -499,19 +460,17 @@ public class V1PodSpec {
     this.hostNetwork = hostNetwork;
   }
 
-  public V1PodSpec hostPID(Boolean hostPID) {
 
+  public V1PodSpec hostPID(Boolean hostPID) {
     this.hostPID = hostPID;
     return this;
   }
 
-  /**
+   /**
    * Use the host&#39;s pid namespace. Optional: Default to false.
-   *
    * @return hostPID
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "Use the host's pid namespace. Optional: Default to false.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getHostPID() {
     return hostPID;
   }
@@ -520,27 +479,17 @@ public class V1PodSpec {
     this.hostPID = hostPID;
   }
 
-  public V1PodSpec hostUsers(Boolean hostUsers) {
 
+  public V1PodSpec hostUsers(Boolean hostUsers) {
     this.hostUsers = hostUsers;
     return this;
   }
 
-  /**
-   * Use the host&#39;s user namespace. Optional: Default to true. If set to true or not present,
-   * the pod will be run in the host user namespace, useful for when the pod needs a feature only
-   * available to the host user namespace, such as loading a kernel module with CAP_SYS_MODULE. When
-   * set to false, a new userns is created for the pod. Setting false is useful for mitigating
-   * container breakout vulnerabilities even allowing users to run their containers as root without
-   * actually having root privileges on the host. This field is alpha-level and is only honored by
-   * servers that enable the UserNamespacesSupport feature.
-   *
+   /**
+   * Use the host&#39;s user namespace. Optional: Default to true. If set to true or not present, the pod will be run in the host user namespace, useful for when the pod needs a feature only available to the host user namespace, such as loading a kernel module with CAP_SYS_MODULE. When set to false, a new userns is created for the pod. Setting false is useful for mitigating container breakout vulnerabilities even allowing users to run their containers as root without actually having root privileges on the host. This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.
    * @return hostUsers
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Use the host's user namespace. Optional: Default to true. If set to true or not present, the pod will be run in the host user namespace, useful for when the pod needs a feature only available to the host user namespace, such as loading a kernel module with CAP_SYS_MODULE. When set to false, a new userns is created for the pod. Setting false is useful for mitigating container breakout vulnerabilities even allowing users to run their containers as root without actually having root privileges on the host. This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getHostUsers() {
     return hostUsers;
   }
@@ -549,22 +498,17 @@ public class V1PodSpec {
     this.hostUsers = hostUsers;
   }
 
-  public V1PodSpec hostname(String hostname) {
 
+  public V1PodSpec hostname(String hostname) {
     this.hostname = hostname;
     return this;
   }
 
-  /**
-   * Specifies the hostname of the Pod If not specified, the pod&#39;s hostname will be set to a
-   * system-defined value.
-   *
+   /**
+   * Specifies the hostname of the Pod If not specified, the pod&#39;s hostname will be set to a system-defined value.
    * @return hostname
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Specifies the hostname of the Pod If not specified, the pod's hostname will be set to a system-defined value.")
+  **/
+  @jakarta.annotation.Nullable
   public String getHostname() {
     return hostname;
   }
@@ -573,8 +517,8 @@ public class V1PodSpec {
     this.hostname = hostname;
   }
 
-  public V1PodSpec imagePullSecrets(List<V1LocalObjectReference> imagePullSecrets) {
 
+  public V1PodSpec imagePullSecrets(List<V1LocalObjectReference> imagePullSecrets) {
     this.imagePullSecrets = imagePullSecrets;
     return this;
   }
@@ -587,18 +531,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * ImagePullSecrets is an optional list of references to secrets in the same namespace to use for
-   * pulling any of the images used by this PodSpec. If specified, these secrets will be passed to
-   * individual puller implementations for them to use. More info:
-   * https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
-   *
+   /**
+   * ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
    * @return imagePullSecrets
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1LocalObjectReference> getImagePullSecrets() {
     return imagePullSecrets;
   }
@@ -607,8 +544,8 @@ public class V1PodSpec {
     this.imagePullSecrets = imagePullSecrets;
   }
 
-  public V1PodSpec initContainers(List<V1Container> initContainers) {
 
+  public V1PodSpec initContainers(List<V1Container> initContainers) {
     this.initContainers = initContainers;
     return this;
   }
@@ -621,24 +558,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * List of initialization containers belonging to the pod. Init containers are executed in order
-   * prior to containers being started. If any init container fails, the pod is considered to have
-   * failed and is handled according to its restartPolicy. The name for an init container or normal
-   * container must be unique among all containers. Init containers may not have Lifecycle actions,
-   * Readiness probes, Liveness probes, or Startup probes. The resourceRequirements of an init
-   * container are taken into account during scheduling by finding the highest request/limit for
-   * each resource type, and then using the max of of that value or the sum of the normal
-   * containers. Limits are applied to init containers in a similar fashion. Init containers cannot
-   * currently be added or removed. Cannot be updated. More info:
-   * https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-   *
+   /**
+   * List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started. If any init container fails, the pod is considered to have failed and is handled according to its restartPolicy. The name for an init container or normal container must be unique among all containers. Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes. The resourceRequirements of an init container are taken into account during scheduling by finding the highest request/limit for each resource type, and then using the max of of that value or the sum of the normal containers. Limits are applied to init containers in a similar fashion. Init containers cannot currently be added or removed. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
    * @return initContainers
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started. If any init container fails, the pod is considered to have failed and is handled according to its restartPolicy. The name for an init container or normal container must be unique among all containers. Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes. The resourceRequirements of an init container are taken into account during scheduling by finding the highest request/limit for each resource type, and then using the max of of that value or the sum of the normal containers. Limits are applied to init containers in a similar fashion. Init containers cannot currently be added or removed. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1Container> getInitContainers() {
     return initContainers;
   }
@@ -647,23 +571,17 @@ public class V1PodSpec {
     this.initContainers = initContainers;
   }
 
-  public V1PodSpec nodeName(String nodeName) {
 
+  public V1PodSpec nodeName(String nodeName) {
     this.nodeName = nodeName;
     return this;
   }
 
-  /**
-   * NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the
-   * scheduler simply schedules this pod onto that node, assuming that it fits resource
-   * requirements.
-   *
+   /**
+   * NodeName indicates in which node this pod is scheduled. If empty, this pod is a candidate for scheduling by the scheduler defined in schedulerName. Once this field is set, the kubelet for this node becomes responsible for the lifecycle of this pod. This field should not be used to express a desire for the pod to be scheduled on a specific node. https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodename
    * @return nodeName
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the scheduler simply schedules this pod onto that node, assuming that it fits resource requirements.")
+  **/
+  @jakarta.annotation.Nullable
   public String getNodeName() {
     return nodeName;
   }
@@ -672,8 +590,8 @@ public class V1PodSpec {
     this.nodeName = nodeName;
   }
 
-  public V1PodSpec nodeSelector(Map<String, String> nodeSelector) {
 
+  public V1PodSpec nodeSelector(Map<String, String> nodeSelector) {
     this.nodeSelector = nodeSelector;
     return this;
   }
@@ -686,17 +604,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must
-   * match a node&#39;s labels for the pod to be scheduled on that node. More info:
-   * https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-   *
+   /**
+   * NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node&#39;s labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
    * @return nodeSelector
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/")
+  **/
+  @jakarta.annotation.Nullable
   public Map<String, String> getNodeSelector() {
     return nodeSelector;
   }
@@ -705,19 +617,17 @@ public class V1PodSpec {
     this.nodeSelector = nodeSelector;
   }
 
-  public V1PodSpec os(V1PodOS os) {
 
+  public V1PodSpec os(V1PodOS os) {
     this.os = os;
     return this;
   }
 
-  /**
+   /**
    * Get os
-   *
    * @return os
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1PodOS getOs() {
     return os;
   }
@@ -726,8 +636,8 @@ public class V1PodSpec {
     this.os = os;
   }
 
-  public V1PodSpec overhead(Map<String, Quantity> overhead) {
 
+  public V1PodSpec overhead(Map<String, Quantity> overhead) {
     this.overhead = overhead;
     return this;
   }
@@ -740,22 +650,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * Overhead represents the resource overhead associated with running a pod for a given
-   * RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission
-   * controller. If the RuntimeClass admission controller is enabled, overhead must not be set in
-   * Pod create requests. The RuntimeClass admission controller will reject Pod create requests
-   * which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec,
-   * Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will
-   * remain unset and treated as zero. More info:
-   * https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
-   *
+   /**
+   * Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission controller. If the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests. The RuntimeClass admission controller will reject Pod create requests which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero. More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
    * @return overhead
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission controller. If the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests. The RuntimeClass admission controller will reject Pod create requests which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero. More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md")
+  **/
+  @jakarta.annotation.Nullable
   public Map<String, Quantity> getOverhead() {
     return overhead;
   }
@@ -764,22 +663,17 @@ public class V1PodSpec {
     this.overhead = overhead;
   }
 
-  public V1PodSpec preemptionPolicy(String preemptionPolicy) {
 
+  public V1PodSpec preemptionPolicy(String preemptionPolicy) {
     this.preemptionPolicy = preemptionPolicy;
     return this;
   }
 
-  /**
-   * PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never,
-   * PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
-   *
+   /**
+   * PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
    * @return preemptionPolicy
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.")
+  **/
+  @jakarta.annotation.Nullable
   public String getPreemptionPolicy() {
     return preemptionPolicy;
   }
@@ -788,24 +682,17 @@ public class V1PodSpec {
     this.preemptionPolicy = preemptionPolicy;
   }
 
-  public V1PodSpec priority(Integer priority) {
 
+  public V1PodSpec priority(Integer priority) {
     this.priority = priority;
     return this;
   }
 
-  /**
-   * The priority value. Various system components use this field to find the priority of the pod.
-   * When Priority Admission Controller is enabled, it prevents users from setting this field. The
-   * admission controller populates this field from PriorityClassName. The higher the value, the
-   * higher the priority.
-   *
+   /**
+   * The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.
    * @return priority
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getPriority() {
     return priority;
   }
@@ -814,25 +701,17 @@ public class V1PodSpec {
     this.priority = priority;
   }
 
-  public V1PodSpec priorityClassName(String priorityClassName) {
 
+  public V1PodSpec priorityClassName(String priorityClassName) {
     this.priorityClassName = priorityClassName;
     return this;
   }
 
-  /**
-   * If specified, indicates the pod&#39;s priority. \&quot;system-node-critical\&quot; and
-   * \&quot;system-cluster-critical\&quot; are two special keywords which indicate the highest
-   * priorities with the former being the highest priority. Any other name must be defined by
-   * creating a PriorityClass object with that name. If not specified, the pod priority will be
-   * default or zero if there is no default.
-   *
+   /**
+   * If specified, indicates the pod&#39;s priority. \&quot;system-node-critical\&quot; and \&quot;system-cluster-critical\&quot; are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.
    * @return priorityClassName
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "If specified, indicates the pod's priority. \"system-node-critical\" and \"system-cluster-critical\" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.")
+  **/
+  @jakarta.annotation.Nullable
   public String getPriorityClassName() {
     return priorityClassName;
   }
@@ -841,8 +720,8 @@ public class V1PodSpec {
     this.priorityClassName = priorityClassName;
   }
 
-  public V1PodSpec readinessGates(List<V1PodReadinessGate> readinessGates) {
 
+  public V1PodSpec readinessGates(List<V1PodReadinessGate> readinessGates) {
     this.readinessGates = readinessGates;
     return this;
   }
@@ -855,18 +734,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all
-   * its containers are ready AND all conditions specified in the readiness gates have status equal
-   * to \&quot;True\&quot; More info:
-   * https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-   *
+   /**
+   * If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all its containers are ready AND all conditions specified in the readiness gates have status equal to \&quot;True\&quot; More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
    * @return readinessGates
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all its containers are ready AND all conditions specified in the readiness gates have status equal to \"True\" More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1PodReadinessGate> getReadinessGates() {
     return readinessGates;
   }
@@ -875,23 +747,44 @@ public class V1PodSpec {
     this.readinessGates = readinessGates;
   }
 
-  public V1PodSpec restartPolicy(String restartPolicy) {
 
+  public V1PodSpec resourceClaims(List<V1PodResourceClaim> resourceClaims) {
+    this.resourceClaims = resourceClaims;
+    return this;
+  }
+
+  public V1PodSpec addResourceClaimsItem(V1PodResourceClaim resourceClaimsItem) {
+    if (this.resourceClaims == null) {
+      this.resourceClaims = new ArrayList<>();
+    }
+    this.resourceClaims.add(resourceClaimsItem);
+    return this;
+  }
+
+   /**
+   * ResourceClaims defines which ResourceClaims must be allocated and reserved before the Pod is allowed to start. The resources will be made available to those containers which consume them by name.  This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.  This field is immutable.
+   * @return resourceClaims
+  **/
+  @jakarta.annotation.Nullable
+  public List<V1PodResourceClaim> getResourceClaims() {
+    return resourceClaims;
+  }
+
+  public void setResourceClaims(List<V1PodResourceClaim> resourceClaims) {
+    this.resourceClaims = resourceClaims;
+  }
+
+
+  public V1PodSpec restartPolicy(String restartPolicy) {
     this.restartPolicy = restartPolicy;
     return this;
   }
 
-  /**
-   * Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to
-   * Always. More info:
-   * https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
-   *
+   /**
+   * Restart policy for all containers within the pod. One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
    * @return restartPolicy
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy  ")
+  **/
+  @jakarta.annotation.Nullable
   public String getRestartPolicy() {
     return restartPolicy;
   }
@@ -900,25 +793,17 @@ public class V1PodSpec {
     this.restartPolicy = restartPolicy;
   }
 
-  public V1PodSpec runtimeClassName(String runtimeClassName) {
 
+  public V1PodSpec runtimeClassName(String runtimeClassName) {
     this.runtimeClassName = runtimeClassName;
     return this;
   }
 
-  /**
-   * RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
-   * to run this pod. If no RuntimeClass resource matches the named class, the pod will not be run.
-   * If unset or empty, the \&quot;legacy\&quot; RuntimeClass will be used, which is an implicit
-   * class with an empty definition that uses the default runtime handler. More info:
-   * https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
-   *
+   /**
+   * RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run. If unset or empty, the \&quot;legacy\&quot; RuntimeClass will be used, which is an implicit class with an empty definition that uses the default runtime handler. More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
    * @return runtimeClassName
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run. If unset or empty, the \"legacy\" RuntimeClass will be used, which is an implicit class with an empty definition that uses the default runtime handler. More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class")
+  **/
+  @jakarta.annotation.Nullable
   public String getRuntimeClassName() {
     return runtimeClassName;
   }
@@ -927,22 +812,17 @@ public class V1PodSpec {
     this.runtimeClassName = runtimeClassName;
   }
 
-  public V1PodSpec schedulerName(String schedulerName) {
 
+  public V1PodSpec schedulerName(String schedulerName) {
     this.schedulerName = schedulerName;
     return this;
   }
 
-  /**
-   * If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will
-   * be dispatched by default scheduler.
-   *
+   /**
+   * If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.
    * @return schedulerName
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.")
+  **/
+  @jakarta.annotation.Nullable
   public String getSchedulerName() {
     return schedulerName;
   }
@@ -951,19 +831,44 @@ public class V1PodSpec {
     this.schedulerName = schedulerName;
   }
 
-  public V1PodSpec securityContext(V1PodSecurityContext securityContext) {
 
+  public V1PodSpec schedulingGates(List<V1PodSchedulingGate> schedulingGates) {
+    this.schedulingGates = schedulingGates;
+    return this;
+  }
+
+  public V1PodSpec addSchedulingGatesItem(V1PodSchedulingGate schedulingGatesItem) {
+    if (this.schedulingGates == null) {
+      this.schedulingGates = new ArrayList<>();
+    }
+    this.schedulingGates.add(schedulingGatesItem);
+    return this;
+  }
+
+   /**
+   * SchedulingGates is an opaque list of values that if specified will block scheduling the pod. If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the scheduler will not attempt to schedule the pod.  SchedulingGates can only be set at pod creation time, and be removed only afterwards.
+   * @return schedulingGates
+  **/
+  @jakarta.annotation.Nullable
+  public List<V1PodSchedulingGate> getSchedulingGates() {
+    return schedulingGates;
+  }
+
+  public void setSchedulingGates(List<V1PodSchedulingGate> schedulingGates) {
+    this.schedulingGates = schedulingGates;
+  }
+
+
+  public V1PodSpec securityContext(V1PodSecurityContext securityContext) {
     this.securityContext = securityContext;
     return this;
   }
 
-  /**
+   /**
    * Get securityContext
-   *
    * @return securityContext
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+  **/
+  @jakarta.annotation.Nullable
   public V1PodSecurityContext getSecurityContext() {
     return securityContext;
   }
@@ -972,22 +877,17 @@ public class V1PodSpec {
     this.securityContext = securityContext;
   }
 
-  public V1PodSpec serviceAccount(String serviceAccount) {
 
+  public V1PodSpec serviceAccount(String serviceAccount) {
     this.serviceAccount = serviceAccount;
     return this;
   }
 
-  /**
-   * DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use
-   * serviceAccountName instead.
-   *
+   /**
+   * DeprecatedServiceAccount is a deprecated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead.
    * @return serviceAccount
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead.")
+  **/
+  @jakarta.annotation.Nullable
   public String getServiceAccount() {
     return serviceAccount;
   }
@@ -996,22 +896,17 @@ public class V1PodSpec {
     this.serviceAccount = serviceAccount;
   }
 
-  public V1PodSpec serviceAccountName(String serviceAccountName) {
 
+  public V1PodSpec serviceAccountName(String serviceAccountName) {
     this.serviceAccountName = serviceAccountName;
     return this;
   }
 
-  /**
-   * ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info:
-   * https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-   *
+   /**
+   * ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
    * @return serviceAccountName
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/")
+  **/
+  @jakarta.annotation.Nullable
   public String getServiceAccountName() {
     return serviceAccountName;
   }
@@ -1020,26 +915,17 @@ public class V1PodSpec {
     this.serviceAccountName = serviceAccountName;
   }
 
-  public V1PodSpec setHostnameAsFQDN(Boolean setHostnameAsFQDN) {
 
+  public V1PodSpec setHostnameAsFQDN(Boolean setHostnameAsFQDN) {
     this.setHostnameAsFQDN = setHostnameAsFQDN;
     return this;
   }
 
-  /**
-   * If true the pod&#39;s hostname will be configured as the pod&#39;s FQDN, rather than the leaf
-   * name (the default). In Linux containers, this means setting the FQDN in the hostname field of
-   * the kernel (the nodename field of struct utsname). In Windows containers, this means setting
-   * the registry value of hostname for the registry key
-   * HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN. If a pod
-   * does not have FQDN, this has no effect. Default to false.
-   *
+   /**
+   * If true the pod&#39;s hostname will be configured as the pod&#39;s FQDN, rather than the leaf name (the default). In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname). In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN. If a pod does not have FQDN, this has no effect. Default to false.
    * @return setHostnameAsFQDN
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default). In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname). In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN. If a pod does not have FQDN, this has no effect. Default to false.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getSetHostnameAsFQDN() {
     return setHostnameAsFQDN;
   }
@@ -1048,24 +934,17 @@ public class V1PodSpec {
     this.setHostnameAsFQDN = setHostnameAsFQDN;
   }
 
-  public V1PodSpec shareProcessNamespace(Boolean shareProcessNamespace) {
 
+  public V1PodSpec shareProcessNamespace(Boolean shareProcessNamespace) {
     this.shareProcessNamespace = shareProcessNamespace;
     return this;
   }
 
-  /**
-   * Share a single process namespace between all of the containers in a pod. When this is set
-   * containers will be able to view and signal processes from other containers in the same pod, and
-   * the first process in each container will not be assigned PID 1. HostPID and
-   * ShareProcessNamespace cannot both be set. Optional: Default to false.
-   *
+   /**
+   * Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false.
    * @return shareProcessNamespace
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false.")
+  **/
+  @jakarta.annotation.Nullable
   public Boolean getShareProcessNamespace() {
     return shareProcessNamespace;
   }
@@ -1074,23 +953,17 @@ public class V1PodSpec {
     this.shareProcessNamespace = shareProcessNamespace;
   }
 
-  public V1PodSpec subdomain(String subdomain) {
 
+  public V1PodSpec subdomain(String subdomain) {
     this.subdomain = subdomain;
     return this;
   }
 
-  /**
-   * If specified, the fully qualified Pod hostname will be
-   * \&quot;&lt;hostname&gt;.&lt;subdomain&gt;.&lt;pod namespace&gt;.svc.&lt;cluster
-   * domain&gt;\&quot;. If not specified, the pod will not have a domainname at all.
-   *
+   /**
+   * If specified, the fully qualified Pod hostname will be \&quot;&lt;hostname&gt;.&lt;subdomain&gt;.&lt;pod namespace&gt;.svc.&lt;cluster domain&gt;\&quot;. If not specified, the pod will not have a domainname at all.
    * @return subdomain
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "If specified, the fully qualified Pod hostname will be \"<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>\". If not specified, the pod will not have a domainname at all.")
+  **/
+  @jakarta.annotation.Nullable
   public String getSubdomain() {
     return subdomain;
   }
@@ -1099,27 +972,17 @@ public class V1PodSpec {
     this.subdomain = subdomain;
   }
 
-  public V1PodSpec terminationGracePeriodSeconds(Long terminationGracePeriodSeconds) {
 
+  public V1PodSpec terminationGracePeriodSeconds(Long terminationGracePeriodSeconds) {
     this.terminationGracePeriodSeconds = terminationGracePeriodSeconds;
     return this;
   }
 
-  /**
-   * Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete
-   * request. Value must be non-negative integer. The value zero indicates stop immediately via the
-   * kill signal (no opportunity to shut down). If this value is nil, the default grace period will
-   * be used instead. The grace period is the duration in seconds after the processes running in the
-   * pod are sent a termination signal and the time when the processes are forcibly halted with a
-   * kill signal. Set this value longer than the expected cleanup time for your process. Defaults to
-   * 30 seconds.
-   *
+   /**
+   * Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). If this value is nil, the default grace period will be used instead. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds.
    * @return terminationGracePeriodSeconds
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). If this value is nil, the default grace period will be used instead. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds.")
+  **/
+  @jakarta.annotation.Nullable
   public Long getTerminationGracePeriodSeconds() {
     return terminationGracePeriodSeconds;
   }
@@ -1128,8 +991,8 @@ public class V1PodSpec {
     this.terminationGracePeriodSeconds = terminationGracePeriodSeconds;
   }
 
-  public V1PodSpec tolerations(List<V1Toleration> tolerations) {
 
+  public V1PodSpec tolerations(List<V1Toleration> tolerations) {
     this.tolerations = tolerations;
     return this;
   }
@@ -1142,13 +1005,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
+   /**
    * If specified, the pod&#39;s tolerations.
-   *
    * @return tolerations
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "If specified, the pod's tolerations.")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1Toleration> getTolerations() {
     return tolerations;
   }
@@ -1157,15 +1018,13 @@ public class V1PodSpec {
     this.tolerations = tolerations;
   }
 
-  public V1PodSpec topologySpreadConstraints(
-      List<V1TopologySpreadConstraint> topologySpreadConstraints) {
 
+  public V1PodSpec topologySpreadConstraints(List<V1TopologySpreadConstraint> topologySpreadConstraints) {
     this.topologySpreadConstraints = topologySpreadConstraints;
     return this;
   }
 
-  public V1PodSpec addTopologySpreadConstraintsItem(
-      V1TopologySpreadConstraint topologySpreadConstraintsItem) {
+  public V1PodSpec addTopologySpreadConstraintsItem(V1TopologySpreadConstraint topologySpreadConstraintsItem) {
     if (this.topologySpreadConstraints == null) {
       this.topologySpreadConstraints = new ArrayList<>();
     }
@@ -1173,28 +1032,21 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * TopologySpreadConstraints describes how a group of pods ought to spread across topology
-   * domains. Scheduler will schedule pods in a way which abides by the constraints. All
-   * topologySpreadConstraints are ANDed.
-   *
+   /**
+   * TopologySpreadConstraints describes how a group of pods ought to spread across topology domains. Scheduler will schedule pods in a way which abides by the constraints. All topologySpreadConstraints are ANDed.
    * @return topologySpreadConstraints
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "TopologySpreadConstraints describes how a group of pods ought to spread across topology domains. Scheduler will schedule pods in a way which abides by the constraints. All topologySpreadConstraints are ANDed.")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1TopologySpreadConstraint> getTopologySpreadConstraints() {
     return topologySpreadConstraints;
   }
 
-  public void setTopologySpreadConstraints(
-      List<V1TopologySpreadConstraint> topologySpreadConstraints) {
+  public void setTopologySpreadConstraints(List<V1TopologySpreadConstraint> topologySpreadConstraints) {
     this.topologySpreadConstraints = topologySpreadConstraints;
   }
 
-  public V1PodSpec volumes(List<V1Volume> volumes) {
 
+  public V1PodSpec volumes(List<V1Volume> volumes) {
     this.volumes = volumes;
     return this;
   }
@@ -1207,16 +1059,11 @@ public class V1PodSpec {
     return this;
   }
 
-  /**
-   * List of volumes that can be mounted by containers belonging to the pod. More info:
-   * https://kubernetes.io/docs/concepts/storage/volumes
-   *
+   /**
+   * List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes
    * @return volumes
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1Volume> getVolumes() {
     return volumes;
   }
@@ -1225,8 +1072,10 @@ public class V1PodSpec {
     this.volumes = volumes;
   }
 
+
+
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -1234,106 +1083,64 @@ public class V1PodSpec {
       return false;
     }
     V1PodSpec v1PodSpec = (V1PodSpec) o;
-    return Objects.equals(this.activeDeadlineSeconds, v1PodSpec.activeDeadlineSeconds)
-        && Objects.equals(this.affinity, v1PodSpec.affinity)
-        && Objects.equals(this.automountServiceAccountToken, v1PodSpec.automountServiceAccountToken)
-        && Objects.equals(this.containers, v1PodSpec.containers)
-        && Objects.equals(this.dnsConfig, v1PodSpec.dnsConfig)
-        && Objects.equals(this.dnsPolicy, v1PodSpec.dnsPolicy)
-        && Objects.equals(this.enableServiceLinks, v1PodSpec.enableServiceLinks)
-        && Objects.equals(this.ephemeralContainers, v1PodSpec.ephemeralContainers)
-        && Objects.equals(this.hostAliases, v1PodSpec.hostAliases)
-        && Objects.equals(this.hostIPC, v1PodSpec.hostIPC)
-        && Objects.equals(this.hostNetwork, v1PodSpec.hostNetwork)
-        && Objects.equals(this.hostPID, v1PodSpec.hostPID)
-        && Objects.equals(this.hostUsers, v1PodSpec.hostUsers)
-        && Objects.equals(this.hostname, v1PodSpec.hostname)
-        && Objects.equals(this.imagePullSecrets, v1PodSpec.imagePullSecrets)
-        && Objects.equals(this.initContainers, v1PodSpec.initContainers)
-        && Objects.equals(this.nodeName, v1PodSpec.nodeName)
-        && Objects.equals(this.nodeSelector, v1PodSpec.nodeSelector)
-        && Objects.equals(this.os, v1PodSpec.os)
-        && Objects.equals(this.overhead, v1PodSpec.overhead)
-        && Objects.equals(this.preemptionPolicy, v1PodSpec.preemptionPolicy)
-        && Objects.equals(this.priority, v1PodSpec.priority)
-        && Objects.equals(this.priorityClassName, v1PodSpec.priorityClassName)
-        && Objects.equals(this.readinessGates, v1PodSpec.readinessGates)
-        && Objects.equals(this.restartPolicy, v1PodSpec.restartPolicy)
-        && Objects.equals(this.runtimeClassName, v1PodSpec.runtimeClassName)
-        && Objects.equals(this.schedulerName, v1PodSpec.schedulerName)
-        && Objects.equals(this.securityContext, v1PodSpec.securityContext)
-        && Objects.equals(this.serviceAccount, v1PodSpec.serviceAccount)
-        && Objects.equals(this.serviceAccountName, v1PodSpec.serviceAccountName)
-        && Objects.equals(this.setHostnameAsFQDN, v1PodSpec.setHostnameAsFQDN)
-        && Objects.equals(this.shareProcessNamespace, v1PodSpec.shareProcessNamespace)
-        && Objects.equals(this.subdomain, v1PodSpec.subdomain)
-        && Objects.equals(
-            this.terminationGracePeriodSeconds, v1PodSpec.terminationGracePeriodSeconds)
-        && Objects.equals(this.tolerations, v1PodSpec.tolerations)
-        && Objects.equals(this.topologySpreadConstraints, v1PodSpec.topologySpreadConstraints)
-        && Objects.equals(this.volumes, v1PodSpec.volumes);
+    return Objects.equals(this.activeDeadlineSeconds, v1PodSpec.activeDeadlineSeconds) &&
+        Objects.equals(this.affinity, v1PodSpec.affinity) &&
+        Objects.equals(this.automountServiceAccountToken, v1PodSpec.automountServiceAccountToken) &&
+        Objects.equals(this.containers, v1PodSpec.containers) &&
+        Objects.equals(this.dnsConfig, v1PodSpec.dnsConfig) &&
+        Objects.equals(this.dnsPolicy, v1PodSpec.dnsPolicy) &&
+        Objects.equals(this.enableServiceLinks, v1PodSpec.enableServiceLinks) &&
+        Objects.equals(this.ephemeralContainers, v1PodSpec.ephemeralContainers) &&
+        Objects.equals(this.hostAliases, v1PodSpec.hostAliases) &&
+        Objects.equals(this.hostIPC, v1PodSpec.hostIPC) &&
+        Objects.equals(this.hostNetwork, v1PodSpec.hostNetwork) &&
+        Objects.equals(this.hostPID, v1PodSpec.hostPID) &&
+        Objects.equals(this.hostUsers, v1PodSpec.hostUsers) &&
+        Objects.equals(this.hostname, v1PodSpec.hostname) &&
+        Objects.equals(this.imagePullSecrets, v1PodSpec.imagePullSecrets) &&
+        Objects.equals(this.initContainers, v1PodSpec.initContainers) &&
+        Objects.equals(this.nodeName, v1PodSpec.nodeName) &&
+        Objects.equals(this.nodeSelector, v1PodSpec.nodeSelector) &&
+        Objects.equals(this.os, v1PodSpec.os) &&
+        Objects.equals(this.overhead, v1PodSpec.overhead) &&
+        Objects.equals(this.preemptionPolicy, v1PodSpec.preemptionPolicy) &&
+        Objects.equals(this.priority, v1PodSpec.priority) &&
+        Objects.equals(this.priorityClassName, v1PodSpec.priorityClassName) &&
+        Objects.equals(this.readinessGates, v1PodSpec.readinessGates) &&
+        Objects.equals(this.resourceClaims, v1PodSpec.resourceClaims) &&
+        Objects.equals(this.restartPolicy, v1PodSpec.restartPolicy) &&
+        Objects.equals(this.runtimeClassName, v1PodSpec.runtimeClassName) &&
+        Objects.equals(this.schedulerName, v1PodSpec.schedulerName) &&
+        Objects.equals(this.schedulingGates, v1PodSpec.schedulingGates) &&
+        Objects.equals(this.securityContext, v1PodSpec.securityContext) &&
+        Objects.equals(this.serviceAccount, v1PodSpec.serviceAccount) &&
+        Objects.equals(this.serviceAccountName, v1PodSpec.serviceAccountName) &&
+        Objects.equals(this.setHostnameAsFQDN, v1PodSpec.setHostnameAsFQDN) &&
+        Objects.equals(this.shareProcessNamespace, v1PodSpec.shareProcessNamespace) &&
+        Objects.equals(this.subdomain, v1PodSpec.subdomain) &&
+        Objects.equals(this.terminationGracePeriodSeconds, v1PodSpec.terminationGracePeriodSeconds) &&
+        Objects.equals(this.tolerations, v1PodSpec.tolerations) &&
+        Objects.equals(this.topologySpreadConstraints, v1PodSpec.topologySpreadConstraints) &&
+        Objects.equals(this.volumes, v1PodSpec.volumes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        activeDeadlineSeconds,
-        affinity,
-        automountServiceAccountToken,
-        containers,
-        dnsConfig,
-        dnsPolicy,
-        enableServiceLinks,
-        ephemeralContainers,
-        hostAliases,
-        hostIPC,
-        hostNetwork,
-        hostPID,
-        hostUsers,
-        hostname,
-        imagePullSecrets,
-        initContainers,
-        nodeName,
-        nodeSelector,
-        os,
-        overhead,
-        preemptionPolicy,
-        priority,
-        priorityClassName,
-        readinessGates,
-        restartPolicy,
-        runtimeClassName,
-        schedulerName,
-        securityContext,
-        serviceAccount,
-        serviceAccountName,
-        setHostnameAsFQDN,
-        shareProcessNamespace,
-        subdomain,
-        terminationGracePeriodSeconds,
-        tolerations,
-        topologySpreadConstraints,
-        volumes);
+    return Objects.hash(activeDeadlineSeconds, affinity, automountServiceAccountToken, containers, dnsConfig, dnsPolicy, enableServiceLinks, ephemeralContainers, hostAliases, hostIPC, hostNetwork, hostPID, hostUsers, hostname, imagePullSecrets, initContainers, nodeName, nodeSelector, os, overhead, preemptionPolicy, priority, priorityClassName, readinessGates, resourceClaims, restartPolicy, runtimeClassName, schedulerName, schedulingGates, securityContext, serviceAccount, serviceAccountName, setHostnameAsFQDN, shareProcessNamespace, subdomain, terminationGracePeriodSeconds, tolerations, topologySpreadConstraints, volumes);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class V1PodSpec {\n");
-    sb.append("    activeDeadlineSeconds: ")
-        .append(toIndentedString(activeDeadlineSeconds))
-        .append("\n");
+    sb.append("    activeDeadlineSeconds: ").append(toIndentedString(activeDeadlineSeconds)).append("\n");
     sb.append("    affinity: ").append(toIndentedString(affinity)).append("\n");
-    sb.append("    automountServiceAccountToken: ")
-        .append(toIndentedString(automountServiceAccountToken))
-        .append("\n");
+    sb.append("    automountServiceAccountToken: ").append(toIndentedString(automountServiceAccountToken)).append("\n");
     sb.append("    containers: ").append(toIndentedString(containers)).append("\n");
     sb.append("    dnsConfig: ").append(toIndentedString(dnsConfig)).append("\n");
     sb.append("    dnsPolicy: ").append(toIndentedString(dnsPolicy)).append("\n");
     sb.append("    enableServiceLinks: ").append(toIndentedString(enableServiceLinks)).append("\n");
-    sb.append("    ephemeralContainers: ")
-        .append(toIndentedString(ephemeralContainers))
-        .append("\n");
+    sb.append("    ephemeralContainers: ").append(toIndentedString(ephemeralContainers)).append("\n");
     sb.append("    hostAliases: ").append(toIndentedString(hostAliases)).append("\n");
     sb.append("    hostIPC: ").append(toIndentedString(hostIPC)).append("\n");
     sb.append("    hostNetwork: ").append(toIndentedString(hostNetwork)).append("\n");
@@ -1350,36 +1157,363 @@ public class V1PodSpec {
     sb.append("    priority: ").append(toIndentedString(priority)).append("\n");
     sb.append("    priorityClassName: ").append(toIndentedString(priorityClassName)).append("\n");
     sb.append("    readinessGates: ").append(toIndentedString(readinessGates)).append("\n");
+    sb.append("    resourceClaims: ").append(toIndentedString(resourceClaims)).append("\n");
     sb.append("    restartPolicy: ").append(toIndentedString(restartPolicy)).append("\n");
     sb.append("    runtimeClassName: ").append(toIndentedString(runtimeClassName)).append("\n");
     sb.append("    schedulerName: ").append(toIndentedString(schedulerName)).append("\n");
+    sb.append("    schedulingGates: ").append(toIndentedString(schedulingGates)).append("\n");
     sb.append("    securityContext: ").append(toIndentedString(securityContext)).append("\n");
     sb.append("    serviceAccount: ").append(toIndentedString(serviceAccount)).append("\n");
     sb.append("    serviceAccountName: ").append(toIndentedString(serviceAccountName)).append("\n");
     sb.append("    setHostnameAsFQDN: ").append(toIndentedString(setHostnameAsFQDN)).append("\n");
-    sb.append("    shareProcessNamespace: ")
-        .append(toIndentedString(shareProcessNamespace))
-        .append("\n");
+    sb.append("    shareProcessNamespace: ").append(toIndentedString(shareProcessNamespace)).append("\n");
     sb.append("    subdomain: ").append(toIndentedString(subdomain)).append("\n");
-    sb.append("    terminationGracePeriodSeconds: ")
-        .append(toIndentedString(terminationGracePeriodSeconds))
-        .append("\n");
+    sb.append("    terminationGracePeriodSeconds: ").append(toIndentedString(terminationGracePeriodSeconds)).append("\n");
     sb.append("    tolerations: ").append(toIndentedString(tolerations)).append("\n");
-    sb.append("    topologySpreadConstraints: ")
-        .append(toIndentedString(topologySpreadConstraints))
-        .append("\n");
+    sb.append("    topologySpreadConstraints: ").append(toIndentedString(topologySpreadConstraints)).append("\n");
     sb.append("    volumes: ").append(toIndentedString(volumes)).append("\n");
     sb.append("}");
     return sb.toString();
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("activeDeadlineSeconds");
+    openapiFields.add("affinity");
+    openapiFields.add("automountServiceAccountToken");
+    openapiFields.add("containers");
+    openapiFields.add("dnsConfig");
+    openapiFields.add("dnsPolicy");
+    openapiFields.add("enableServiceLinks");
+    openapiFields.add("ephemeralContainers");
+    openapiFields.add("hostAliases");
+    openapiFields.add("hostIPC");
+    openapiFields.add("hostNetwork");
+    openapiFields.add("hostPID");
+    openapiFields.add("hostUsers");
+    openapiFields.add("hostname");
+    openapiFields.add("imagePullSecrets");
+    openapiFields.add("initContainers");
+    openapiFields.add("nodeName");
+    openapiFields.add("nodeSelector");
+    openapiFields.add("os");
+    openapiFields.add("overhead");
+    openapiFields.add("preemptionPolicy");
+    openapiFields.add("priority");
+    openapiFields.add("priorityClassName");
+    openapiFields.add("readinessGates");
+    openapiFields.add("resourceClaims");
+    openapiFields.add("restartPolicy");
+    openapiFields.add("runtimeClassName");
+    openapiFields.add("schedulerName");
+    openapiFields.add("schedulingGates");
+    openapiFields.add("securityContext");
+    openapiFields.add("serviceAccount");
+    openapiFields.add("serviceAccountName");
+    openapiFields.add("setHostnameAsFQDN");
+    openapiFields.add("shareProcessNamespace");
+    openapiFields.add("subdomain");
+    openapiFields.add("terminationGracePeriodSeconds");
+    openapiFields.add("tolerations");
+    openapiFields.add("topologySpreadConstraints");
+    openapiFields.add("volumes");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("containers");
+  }
+
+ /**
+  * Validates the JSON Element and throws an exception if issues found
+  *
+  * @param jsonElement JSON Element
+  * @throws IOException if the JSON Element is invalid with respect to V1PodSpec
+  */
+  public static void validateJsonElement(JsonElement jsonElement) throws IOException {
+      if (jsonElement == null) {
+        if (!V1PodSpec.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in V1PodSpec is not found in the empty JSON string", V1PodSpec.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Map.Entry<String, JsonElement> entry : entries) {
+        if (!V1PodSpec.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `V1PodSpec` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : V1PodSpec.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+        }
+      }
+        JsonObject jsonObj = jsonElement.getAsJsonObject();
+      // validate the optional field `affinity`
+      if (jsonObj.get("affinity") != null && !jsonObj.get("affinity").isJsonNull()) {
+        V1Affinity.validateJsonElement(jsonObj.get("affinity"));
+      }
+      // ensure the json data is an array
+      if (!jsonObj.get("containers").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `containers` to be an array in the JSON string but got `%s`", jsonObj.get("containers").toString()));
+      }
+
+      JsonArray jsonArraycontainers = jsonObj.getAsJsonArray("containers");
+      // validate the required field `containers` (array)
+      for (int i = 0; i < jsonArraycontainers.size(); i++) {
+        V1Container.validateJsonElement(jsonArraycontainers.get(i));
+      };
+      // validate the optional field `dnsConfig`
+      if (jsonObj.get("dnsConfig") != null && !jsonObj.get("dnsConfig").isJsonNull()) {
+        V1PodDNSConfig.validateJsonElement(jsonObj.get("dnsConfig"));
+      }
+      if ((jsonObj.get("dnsPolicy") != null && !jsonObj.get("dnsPolicy").isJsonNull()) && !jsonObj.get("dnsPolicy").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `dnsPolicy` to be a primitive type in the JSON string but got `%s`", jsonObj.get("dnsPolicy").toString()));
+      }
+      if (jsonObj.get("ephemeralContainers") != null && !jsonObj.get("ephemeralContainers").isJsonNull()) {
+        JsonArray jsonArrayephemeralContainers = jsonObj.getAsJsonArray("ephemeralContainers");
+        if (jsonArrayephemeralContainers != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("ephemeralContainers").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `ephemeralContainers` to be an array in the JSON string but got `%s`", jsonObj.get("ephemeralContainers").toString()));
+          }
+
+          // validate the optional field `ephemeralContainers` (array)
+          for (int i = 0; i < jsonArrayephemeralContainers.size(); i++) {
+            V1EphemeralContainer.validateJsonElement(jsonArrayephemeralContainers.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("hostAliases") != null && !jsonObj.get("hostAliases").isJsonNull()) {
+        JsonArray jsonArrayhostAliases = jsonObj.getAsJsonArray("hostAliases");
+        if (jsonArrayhostAliases != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("hostAliases").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `hostAliases` to be an array in the JSON string but got `%s`", jsonObj.get("hostAliases").toString()));
+          }
+
+          // validate the optional field `hostAliases` (array)
+          for (int i = 0; i < jsonArrayhostAliases.size(); i++) {
+            V1HostAlias.validateJsonElement(jsonArrayhostAliases.get(i));
+          };
+        }
+      }
+      if ((jsonObj.get("hostname") != null && !jsonObj.get("hostname").isJsonNull()) && !jsonObj.get("hostname").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `hostname` to be a primitive type in the JSON string but got `%s`", jsonObj.get("hostname").toString()));
+      }
+      if (jsonObj.get("imagePullSecrets") != null && !jsonObj.get("imagePullSecrets").isJsonNull()) {
+        JsonArray jsonArrayimagePullSecrets = jsonObj.getAsJsonArray("imagePullSecrets");
+        if (jsonArrayimagePullSecrets != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("imagePullSecrets").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `imagePullSecrets` to be an array in the JSON string but got `%s`", jsonObj.get("imagePullSecrets").toString()));
+          }
+
+          // validate the optional field `imagePullSecrets` (array)
+          for (int i = 0; i < jsonArrayimagePullSecrets.size(); i++) {
+            V1LocalObjectReference.validateJsonElement(jsonArrayimagePullSecrets.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("initContainers") != null && !jsonObj.get("initContainers").isJsonNull()) {
+        JsonArray jsonArrayinitContainers = jsonObj.getAsJsonArray("initContainers");
+        if (jsonArrayinitContainers != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("initContainers").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `initContainers` to be an array in the JSON string but got `%s`", jsonObj.get("initContainers").toString()));
+          }
+
+          // validate the optional field `initContainers` (array)
+          for (int i = 0; i < jsonArrayinitContainers.size(); i++) {
+            V1Container.validateJsonElement(jsonArrayinitContainers.get(i));
+          };
+        }
+      }
+      if ((jsonObj.get("nodeName") != null && !jsonObj.get("nodeName").isJsonNull()) && !jsonObj.get("nodeName").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `nodeName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("nodeName").toString()));
+      }
+      // validate the optional field `os`
+      if (jsonObj.get("os") != null && !jsonObj.get("os").isJsonNull()) {
+        V1PodOS.validateJsonElement(jsonObj.get("os"));
+      }
+      if ((jsonObj.get("preemptionPolicy") != null && !jsonObj.get("preemptionPolicy").isJsonNull()) && !jsonObj.get("preemptionPolicy").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `preemptionPolicy` to be a primitive type in the JSON string but got `%s`", jsonObj.get("preemptionPolicy").toString()));
+      }
+      if ((jsonObj.get("priorityClassName") != null && !jsonObj.get("priorityClassName").isJsonNull()) && !jsonObj.get("priorityClassName").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `priorityClassName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("priorityClassName").toString()));
+      }
+      if (jsonObj.get("readinessGates") != null && !jsonObj.get("readinessGates").isJsonNull()) {
+        JsonArray jsonArrayreadinessGates = jsonObj.getAsJsonArray("readinessGates");
+        if (jsonArrayreadinessGates != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("readinessGates").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `readinessGates` to be an array in the JSON string but got `%s`", jsonObj.get("readinessGates").toString()));
+          }
+
+          // validate the optional field `readinessGates` (array)
+          for (int i = 0; i < jsonArrayreadinessGates.size(); i++) {
+            V1PodReadinessGate.validateJsonElement(jsonArrayreadinessGates.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("resourceClaims") != null && !jsonObj.get("resourceClaims").isJsonNull()) {
+        JsonArray jsonArrayresourceClaims = jsonObj.getAsJsonArray("resourceClaims");
+        if (jsonArrayresourceClaims != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("resourceClaims").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `resourceClaims` to be an array in the JSON string but got `%s`", jsonObj.get("resourceClaims").toString()));
+          }
+
+          // validate the optional field `resourceClaims` (array)
+          for (int i = 0; i < jsonArrayresourceClaims.size(); i++) {
+            V1PodResourceClaim.validateJsonElement(jsonArrayresourceClaims.get(i));
+          };
+        }
+      }
+      if ((jsonObj.get("restartPolicy") != null && !jsonObj.get("restartPolicy").isJsonNull()) && !jsonObj.get("restartPolicy").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `restartPolicy` to be a primitive type in the JSON string but got `%s`", jsonObj.get("restartPolicy").toString()));
+      }
+      if ((jsonObj.get("runtimeClassName") != null && !jsonObj.get("runtimeClassName").isJsonNull()) && !jsonObj.get("runtimeClassName").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `runtimeClassName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("runtimeClassName").toString()));
+      }
+      if ((jsonObj.get("schedulerName") != null && !jsonObj.get("schedulerName").isJsonNull()) && !jsonObj.get("schedulerName").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `schedulerName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("schedulerName").toString()));
+      }
+      if (jsonObj.get("schedulingGates") != null && !jsonObj.get("schedulingGates").isJsonNull()) {
+        JsonArray jsonArrayschedulingGates = jsonObj.getAsJsonArray("schedulingGates");
+        if (jsonArrayschedulingGates != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("schedulingGates").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `schedulingGates` to be an array in the JSON string but got `%s`", jsonObj.get("schedulingGates").toString()));
+          }
+
+          // validate the optional field `schedulingGates` (array)
+          for (int i = 0; i < jsonArrayschedulingGates.size(); i++) {
+            V1PodSchedulingGate.validateJsonElement(jsonArrayschedulingGates.get(i));
+          };
+        }
+      }
+      // validate the optional field `securityContext`
+      if (jsonObj.get("securityContext") != null && !jsonObj.get("securityContext").isJsonNull()) {
+        V1PodSecurityContext.validateJsonElement(jsonObj.get("securityContext"));
+      }
+      if ((jsonObj.get("serviceAccount") != null && !jsonObj.get("serviceAccount").isJsonNull()) && !jsonObj.get("serviceAccount").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `serviceAccount` to be a primitive type in the JSON string but got `%s`", jsonObj.get("serviceAccount").toString()));
+      }
+      if ((jsonObj.get("serviceAccountName") != null && !jsonObj.get("serviceAccountName").isJsonNull()) && !jsonObj.get("serviceAccountName").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `serviceAccountName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("serviceAccountName").toString()));
+      }
+      if ((jsonObj.get("subdomain") != null && !jsonObj.get("subdomain").isJsonNull()) && !jsonObj.get("subdomain").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `subdomain` to be a primitive type in the JSON string but got `%s`", jsonObj.get("subdomain").toString()));
+      }
+      if (jsonObj.get("tolerations") != null && !jsonObj.get("tolerations").isJsonNull()) {
+        JsonArray jsonArraytolerations = jsonObj.getAsJsonArray("tolerations");
+        if (jsonArraytolerations != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("tolerations").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `tolerations` to be an array in the JSON string but got `%s`", jsonObj.get("tolerations").toString()));
+          }
+
+          // validate the optional field `tolerations` (array)
+          for (int i = 0; i < jsonArraytolerations.size(); i++) {
+            V1Toleration.validateJsonElement(jsonArraytolerations.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("topologySpreadConstraints") != null && !jsonObj.get("topologySpreadConstraints").isJsonNull()) {
+        JsonArray jsonArraytopologySpreadConstraints = jsonObj.getAsJsonArray("topologySpreadConstraints");
+        if (jsonArraytopologySpreadConstraints != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("topologySpreadConstraints").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `topologySpreadConstraints` to be an array in the JSON string but got `%s`", jsonObj.get("topologySpreadConstraints").toString()));
+          }
+
+          // validate the optional field `topologySpreadConstraints` (array)
+          for (int i = 0; i < jsonArraytopologySpreadConstraints.size(); i++) {
+            V1TopologySpreadConstraint.validateJsonElement(jsonArraytopologySpreadConstraints.get(i));
+          };
+        }
+      }
+      if (jsonObj.get("volumes") != null && !jsonObj.get("volumes").isJsonNull()) {
+        JsonArray jsonArrayvolumes = jsonObj.getAsJsonArray("volumes");
+        if (jsonArrayvolumes != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("volumes").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `volumes` to be an array in the JSON string but got `%s`", jsonObj.get("volumes").toString()));
+          }
+
+          // validate the optional field `volumes` (array)
+          for (int i = 0; i < jsonArrayvolumes.size(); i++) {
+            V1Volume.validateJsonElement(jsonArrayvolumes.get(i));
+          };
+        }
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!V1PodSpec.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'V1PodSpec' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<V1PodSpec> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(V1PodSpec.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<V1PodSpec>() {
+           @Override
+           public void write(JsonWriter out, V1PodSpec value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public V1PodSpec read(JsonReader in) throws IOException {
+             JsonElement jsonElement = elementAdapter.read(in);
+             validateJsonElement(jsonElement);
+             return thisAdapter.fromJsonTree(jsonElement);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of V1PodSpec given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of V1PodSpec
+  * @throws IOException if the JSON string is invalid with respect to V1PodSpec
+  */
+  public static V1PodSpec fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, V1PodSpec.class);
+  }
+
+ /**
+  * Convert an instance of V1PodSpec to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }

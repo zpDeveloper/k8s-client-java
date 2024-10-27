@@ -12,146 +12,179 @@ limitations under the License.
 */
 package io.kubernetes.client.custom;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class QuantityFormatterTest {
+class QuantityFormatterTest {
 
   @Test
-  public void testParsePlain() {
+  void equalsAfterSerialAndDeSerial() {
+    testSerialDeSerial("0.5Gi");
+    testSerialDeSerial("0.5G");
+    testSerialDeSerial("1Gi");
+    testSerialDeSerial("1G");
+    testSerialDeSerial("500Mi");
+    testSerialDeSerial("500M");
+    testSerialDeSerial("500m");
+    testSerialDeSerial("0.5");
+    testSerialDeSerial("1");
+  }
+
+  private static void testSerialDeSerial(String value) {
+    Quantity quantity = Quantity.fromString(value);
+    // simulate the serialize-method
+    String suffixedString = quantity.toSuffixedString();
+    // simulate the deserialize-method, @see io.kubernetes.client.custom.Quantity.QuantityAdapter
+    Quantity deSerial = Quantity.fromString(suffixedString);
+
+    assertThat(deSerial).isEqualTo(quantity);
+  }
+
+  @Test
+  void parsePlain() {
     final Quantity quantity = new QuantityFormatter().parse("1");
-    assertThat(quantity.getFormat(), is(Quantity.Format.DECIMAL_SI));
-    assertThat(quantity.getNumber(), is(BigDecimal.valueOf(1)));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.DECIMAL_SI);
+    assertThat(quantity.getNumber()).isEqualTo(BigDecimal.valueOf(1));
   }
 
   @Test
-  public void testParseFractional() {
+  void parseFractional() {
     final Quantity quantity = new QuantityFormatter().parse("0.001");
-    assertThat(quantity.getFormat(), is(Quantity.Format.DECIMAL_SI));
-    assertThat(quantity.getNumber(), is(BigDecimal.valueOf(0.001)));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.DECIMAL_SI);
+    assertThat(quantity.getNumber()).isEqualTo(BigDecimal.valueOf(0.001));
   }
 
   @Test
-  public void testParseFractionalUnit() {
+  void parseFractionalUnit() {
     final Quantity quantity = new QuantityFormatter().parse("0.001m");
-    assertThat(quantity.getFormat(), is(Quantity.Format.DECIMAL_SI));
-    assertThat(quantity.getNumber(), is(new BigDecimal("0.000001")));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.DECIMAL_SI);
+    assertThat(quantity.getNumber()).isEqualTo(new BigDecimal("0.000001"));
   }
 
   @Test
-  public void testParseBinarySi() {
+  void parseBinarySi() {
     final Quantity quantity = new QuantityFormatter().parse("1Ki");
-    assertThat(quantity.getFormat(), is(Quantity.Format.BINARY_SI));
-    assertThat(quantity.getNumber(), is(BigDecimal.valueOf(1024)));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.BINARY_SI);
+    assertThat(quantity.getNumber()).isEqualTo(BigDecimal.valueOf(1024));
   }
 
   @Test
-  public void testParseLargeNumeratorBinarySi() {
+  void parseLargeNumeratorBinarySi() {
     final Quantity quantity = new QuantityFormatter().parse("32Mi");
-    assertThat(quantity.getFormat(), is(Quantity.Format.BINARY_SI));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.BINARY_SI);
     assertThat(
-        quantity.getNumber(), is(BigDecimal.valueOf(2).pow(20).multiply(BigDecimal.valueOf(32))));
+        quantity.getNumber()).isEqualTo(BigDecimal.valueOf(2).pow(20).multiply(BigDecimal.valueOf(32)));
   }
 
   @Test
-  public void testParseExponent() {
+  void parseExponent() {
     final Quantity quantity = new QuantityFormatter().parse("1e3");
-    assertThat(quantity.getFormat(), is(Quantity.Format.DECIMAL_EXPONENT));
-    assertThat(quantity.getNumber(), is(BigDecimal.valueOf(1000)));
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.DECIMAL_EXPONENT);
+    assertThat(quantity.getNumber()).isEqualTo(BigDecimal.valueOf(1000));
   }
 
   @Test
-  public void testParseNegativeExponent() {
+  void parseNegativeExponent() {
     final Quantity quantity = new QuantityFormatter().parse("1e-3");
-    assertThat(quantity.getFormat(), is(Quantity.Format.DECIMAL_EXPONENT));
-    assertThat(quantity.getNumber(), is(BigDecimal.valueOf(0.001)));
-  }
-
-  @Test(expected = QuantityFormatException.class)
-  public void testParseBad() {
-    new QuantityFormatter().parse("4e9e");
+    assertThat(quantity.getFormat()).isEqualTo(Quantity.Format.DECIMAL_EXPONENT);
+    assertThat(quantity.getNumber()).isEqualTo(BigDecimal.valueOf(0.001));
   }
 
   @Test
-  public void testFormatPlain() {
+  void parseBad() {
+    assertThatThrownBy(() -> new QuantityFormatter().parse("4e9e"))
+        .isInstanceOf(QuantityFormatException.class);
+  }
+
+  @Test
+  void formatPlain() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(new BigDecimal("100"), Quantity.Format.DECIMAL_SI));
-    assertThat(formattedString, is("100"));
+    assertThat(formattedString).isEqualTo("100");
   }
 
   @Test
-  public void testFormatDecimalSi() {
+  void formatDecimalSi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(new BigDecimal("100000"), Quantity.Format.DECIMAL_SI));
-    assertThat(formattedString, is("100k"));
+    assertThat(formattedString).isEqualTo("100k");
   }
 
   @Test
-  public void testFormatFractionalDecimalSi() {
+  void formatFractionalDecimalSi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(new BigDecimal("100.001"), Quantity.Format.DECIMAL_SI));
-    assertThat(formattedString, is("100001m"));
+    assertThat(formattedString).isEqualTo("100001m");
   }
 
   @Test
-  public void testFormatBinarySi() {
+  void formatBinarySi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(new BigDecimal(2).pow(20), Quantity.Format.BINARY_SI));
-    assertThat(formattedString, is("1Mi"));
+    assertThat(formattedString).isEqualTo("1Mi");
   }
 
   @Test
-  public void testFormatLessThan1024BinarySi() {
+  void formatLessThan1024BinarySi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(128), Quantity.Format.BINARY_SI));
-    assertThat(formattedString, is("128"));
+    assertThat(formattedString).isEqualTo("128");
   }
 
   @Test
-  public void testFormatNon1024BinarySi() {
+  void formatNon1024BinarySi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(2056), Quantity.Format.BINARY_SI));
-    assertThat(formattedString, is("2056"));
+    assertThat(formattedString).isEqualTo("2056");
   }
 
   @Test
-  public void testFormatFractionalBinarySi() {
+  void formatFractionalBinarySi() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(123.123), Quantity.Format.BINARY_SI));
-    assertThat(formattedString, is("123123m"));
+    assertThat(formattedString).isEqualTo("123123m");
   }
 
   @Test
-  public void testFormatDecimalExponent() {
+  void formatDecimalExponent() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(1000000), Quantity.Format.DECIMAL_EXPONENT));
-    assertThat(formattedString, is("1e6"));
+    assertThat(formattedString).isEqualTo("1e6");
   }
 
   @Test
-  public void testFormatEnforceExpOf3DecimalExponent() {
+  void formatEnforceExpOf3DecimalExponent() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(100000), Quantity.Format.DECIMAL_EXPONENT));
-    assertThat(formattedString, is("100e3"));
+    assertThat(formattedString).isEqualTo("100e3");
   }
 
   @Test
-  public void testFormatNoExpDecimalExponent() {
+  void formatNoExpDecimalExponent() {
     final String formattedString =
         new QuantityFormatter()
             .format(new Quantity(BigDecimal.valueOf(12345), Quantity.Format.DECIMAL_EXPONENT));
-    assertThat(formattedString, is("12345"));
+    assertThat(formattedString).isEqualTo("12345");
+  }
+
+  @Test
+  void formatLargeDecimalExponent() {
+    final String formattedString2 =
+            new QuantityFormatter()
+                    .format(new Quantity(Float.toString(123456789012.f)));
+    // Note: Beginning with JRE 21, this rounds down to 123456790e3
+    assertThat(formattedString2).isIn("123456791e3", "123456790e3");
   }
 }

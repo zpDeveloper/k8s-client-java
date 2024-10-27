@@ -12,20 +12,21 @@ limitations under the License.
 */
 package io.kubernetes.client.informer.cache;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.informer.ResourceEventHandler;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SharedProcessorTest {
+class SharedProcessorTest {
 
   @Test
-  public void testListenerAddition() throws InterruptedException {
+  void listenerAddition() throws InterruptedException {
 
     SharedProcessor<V1Pod> sharedProcessor = new SharedProcessor<>();
 
@@ -37,12 +38,14 @@ public class SharedProcessorTest {
     ProcessorListener.Notification<V1Pod> deleteNotification =
         new ProcessorListener.DeleteNotification<V1Pod>(foo1);
 
+    CountDownLatch latch = new CountDownLatch(9);
+
     ExpectingNoticationHandler<V1Pod> expectAddHandler =
-        new ExpectingNoticationHandler<V1Pod>(addNotification);
+        new ExpectingNoticationHandler<V1Pod>(addNotification, latch);
     ExpectingNoticationHandler<V1Pod> expectUpdateHandler =
-        new ExpectingNoticationHandler<V1Pod>(updateNotification);
+        new ExpectingNoticationHandler<V1Pod>(updateNotification, latch);
     ExpectingNoticationHandler<V1Pod> expectDeleteHandler =
-        new ExpectingNoticationHandler<V1Pod>(deleteNotification);
+        new ExpectingNoticationHandler<V1Pod>(deleteNotification, latch);
 
     sharedProcessor.addAndStartListener(expectAddHandler);
     sharedProcessor.addAndStartListener(expectUpdateHandler);
@@ -51,20 +54,21 @@ public class SharedProcessorTest {
     sharedProcessor.distribute(addNotification, false);
     sharedProcessor.distribute(updateNotification, false);
     sharedProcessor.distribute(deleteNotification, false);
-    // sleep 1s for notification distribution completing
-    Thread.sleep(1000);
 
-    assertTrue(expectAddHandler.isSatisfied());
-    assertTrue(expectUpdateHandler.isSatisfied());
-    assertTrue(expectDeleteHandler.isSatisfied());
+    latch.await();
+
+    assertThat(expectAddHandler.isSatisfied()).isTrue();
+    assertThat(expectUpdateHandler.isSatisfied()).isTrue();
+    assertThat(expectDeleteHandler.isSatisfied()).isTrue();
   }
 
   @Test
-  public void testShutdownGracefully() throws InterruptedException {
+  void shutdownGracefully() throws InterruptedException {
     SharedProcessor<V1Pod> sharedProcessor =
         new SharedProcessor<>(Executors.newCachedThreadPool(), Duration.ofSeconds(5));
     TestWorker<V1Pod> slowWorker = new TestWorker<>(null, 0);
     final boolean[] interrupted = {false};
+    CountDownLatch latch = new CountDownLatch(1);
     slowWorker.setTask(
         () -> {
           try {
@@ -72,30 +76,39 @@ public class SharedProcessorTest {
             Thread.sleep(10 * 1000);
           } catch (InterruptedException e) {
             interrupted[0] = true;
+          } finally {
+            latch.countDown();
           }
         });
     sharedProcessor.addAndStartListener(slowWorker);
     sharedProcessor.stop();
-    // make sure the slow worker has set interrupted[0] = true
-    Thread.sleep(1000);
-    // the slow worker is interrupted upon timeout
-    assertTrue(interrupted[0]);
+    latch.await();
+    assertThat(interrupted[0]).isTrue();
   }
 
   private static class ExpectingNoticationHandler<ApiType extends KubernetesObject>
       extends ProcessorListener<ApiType> {
 
-    public ExpectingNoticationHandler(Notification<ApiType> expectingNotification) {
+    public ExpectingNoticationHandler(
+        Notification<ApiType> expectingNotification, CountDownLatch countDownLatch) {
       this(
           new ResourceEventHandler<ApiType>() {
-            @Override
-            public void onAdd(ApiType obj) {}
+            CountDownLatch latch = countDownLatch;
 
             @Override
-            public void onUpdate(ApiType oldObj, ApiType newObj) {}
+            public void onAdd(ApiType obj) {
+              latch.countDown();
+            }
 
             @Override
-            public void onDelete(ApiType obj, boolean deletedFinalStateUnknown) {}
+            public void onUpdate(ApiType oldObj, ApiType newObj) {
+              latch.countDown();
+            }
+
+            @Override
+            public void onDelete(ApiType obj, boolean deletedFinalStateUnknown) {
+              latch.countDown();
+            }
           },
           0);
       this.expectingNotification = expectingNotification;

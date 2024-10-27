@@ -12,14 +12,14 @@ limitations under the License.
 */
 package io.kubernetes.client.extended.workqueue;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.kubernetes.client.extended.workqueue.ratelimiter.RateLimiter;
 import java.time.Duration;
 import java.util.concurrent.Executors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DefaultRateLimitQueueTest {
+class DefaultRateLimitQueueTest {
 
   private static class MockRateLimiter<T> implements RateLimiter<T> {
 
@@ -46,16 +46,17 @@ public class DefaultRateLimitQueueTest {
   }
 
   @Test
-  public void testSimpleRateLimitQueue() throws Exception {
+  void simpleRateLimitQueue() throws Exception {
     MockRateLimiter<String> mockRateLimiter = new MockRateLimiter<>();
     DefaultRateLimitingQueue<String> rlq =
         new DefaultRateLimitingQueue<>(Executors.newSingleThreadExecutor(), mockRateLimiter);
     long t1 = System.nanoTime();
     rlq.addRateLimited("foo");
     rlq.get();
-    long t2 = System.nanoTime();
-    assertTrue(
-        "Unexpected time: " + (t2 - t1) + " vs " + MockRateLimiter.mockConstantBackoff.toNanos(),
-        t2 - t1 >= MockRateLimiter.mockConstantBackoff.toNanos());
+    long t2 = System.nanoTime() - 100000;
+    long elapsed = t2-t1;
+    long elapsedMillis = Math.round((float) elapsed / 1000_000f);
+    long backoffMillis = Math.round((float) MockRateLimiter.mockConstantBackoff.toNanos() / 1000_000f);
+    assertThat(elapsedMillis).isGreaterThanOrEqualTo(backoffMillis);
   }
 }

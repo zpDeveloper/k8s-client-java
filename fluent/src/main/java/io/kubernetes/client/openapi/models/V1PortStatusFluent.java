@@ -1,36 +1,98 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.Integer;
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
+import java.lang.Object;
+import java.lang.String;
 
-/** Generated */
-public interface V1PortStatusFluent<A extends V1PortStatusFluent<A>> extends Fluent<A> {
-  public String getError();
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1PortStatusFluent<A extends V1PortStatusFluent<A>> extends BaseFluent<A>{
+  public V1PortStatusFluent() {
+  }
+  
+  public V1PortStatusFluent(V1PortStatus instance) {
+    this.copyInstance(instance);
+  }
+  private String error;
+  private Integer port;
+  private String protocol;
+  
+  protected void copyInstance(V1PortStatus instance) {
+    instance = (instance != null ? instance : new V1PortStatus());
+    if (instance != null) {
+          this.withError(instance.getError());
+          this.withPort(instance.getPort());
+          this.withProtocol(instance.getProtocol());
+        }
+  }
+  
+  public String getError() {
+    return this.error;
+  }
+  
+  public A withError(String error) {
+    this.error = error;
+    return (A) this;
+  }
+  
+  public boolean hasError() {
+    return this.error != null;
+  }
+  
+  public Integer getPort() {
+    return this.port;
+  }
+  
+  public A withPort(Integer port) {
+    this.port = port;
+    return (A) this;
+  }
+  
+  public boolean hasPort() {
+    return this.port != null;
+  }
+  
+  public String getProtocol() {
+    return this.protocol;
+  }
+  
+  public A withProtocol(String protocol) {
+    this.protocol = protocol;
+    return (A) this;
+  }
+  
+  public boolean hasProtocol() {
+    return this.protocol != null;
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1PortStatusFluent that = (V1PortStatusFluent) o;
+    if (!java.util.Objects.equals(error, that.error)) return false;
+    if (!java.util.Objects.equals(port, that.port)) return false;
+    if (!java.util.Objects.equals(protocol, that.protocol)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(error,  port,  protocol,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (error != null) { sb.append("error:"); sb.append(error + ","); }
+    if (port != null) { sb.append("port:"); sb.append(port + ","); }
+    if (protocol != null) { sb.append("protocol:"); sb.append(protocol); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
 
-  public A withError(String error);
-
-  public Boolean hasError();
-
-  public Integer getPort();
-
-  public A withPort(Integer port);
-
-  public Boolean hasPort();
-
-  public String getProtocol();
-
-  public A withProtocol(String protocol);
-
-  public Boolean hasProtocol();
 }

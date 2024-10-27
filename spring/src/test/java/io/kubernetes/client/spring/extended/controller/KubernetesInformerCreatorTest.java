@@ -18,15 +18,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
@@ -41,20 +39,17 @@ import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.generic.GenericKubernetesApi;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
-public class KubernetesInformerCreatorTest {
+class KubernetesInformerCreatorTest {
 
   public static class CountRequestAction extends PostServeAction {
     @Override
@@ -69,18 +64,18 @@ public class KubernetesInformerCreatorTest {
     }
   }
 
-  @ClassRule
-  public static WireMockRule wireMockRule =
-      new WireMockRule(options().dynamicPort().extensions(new CountRequestAction()));
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance()
+          .options(options().dynamicPort().extensions(new CountRequestAction()))
+          .build();
 
   @SpringBootApplication
   static class App {
 
     @Bean
     public ApiClient testingApiClient() {
-      ApiClient apiClient =
-          new ClientBuilder().setBasePath("http://localhost:" + wireMockRule.port()).build();
-      return apiClient;
+      return new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
     }
 
     @Bean
@@ -109,9 +104,9 @@ public class KubernetesInformerCreatorTest {
   @Autowired private SharedIndexInformer<V1ConfigMap> configMapInformer;
 
   @Test
-  public void testInformerInjection() throws InterruptedException {
-    assertNotNull(podInformer);
-    assertNotNull(configMapInformer);
+  void informerInjection() throws InterruptedException {
+    assertThat(podInformer).isNotNull();
+    assertThat(configMapInformer).isNotNull();
 
     Semaphore getCount = new Semaphore(2);
     Semaphore watchCount = new Semaphore(2);
@@ -127,7 +122,7 @@ public class KubernetesInformerCreatorTest {
             .kind("ConfigMap")
             .metadata(new V1ObjectMeta().namespace("default").name("bar1"));
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlMatching("^/api/v1/pods.*"))
             .withPostServeAction("semaphore", getParams)
             .withQueryParam("watch", equalTo("false"))
@@ -135,18 +130,17 @@ public class KubernetesInformerCreatorTest {
                 aResponse()
                     .withStatus(200)
                     .withBody(
-                        new JSON()
-                            .serialize(
+                        JSON.serialize(
                                 new V1PodList()
                                     .metadata(new V1ListMeta().resourceVersion("0"))
-                                    .items(Arrays.asList(foo1))))));
-    wireMockRule.stubFor(
+                                    .items(Collections.singletonList(foo1))))));
+    apiServer.stubFor(
         get(urlMatching("^/api/v1/pods.*"))
             .withPostServeAction("semaphore", watchParams)
             .withQueryParam("watch", equalTo("true"))
             .willReturn(aResponse().withStatus(200).withBody("{}")));
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlMatching("^/api/v1/namespaces/default/configmaps.*"))
             .withPostServeAction("semaphore", getParams)
             .withQueryParam("watch", equalTo("false"))
@@ -154,12 +148,11 @@ public class KubernetesInformerCreatorTest {
                 aResponse()
                     .withStatus(200)
                     .withBody(
-                        new JSON()
-                            .serialize(
+                        JSON.serialize(
                                 new V1ConfigMapList()
                                     .metadata(new V1ListMeta().resourceVersion("0"))
-                                    .items(Arrays.asList(bar1))))));
-    wireMockRule.stubFor(
+                                    .items(Collections.singletonList(bar1))))));
+    apiServer.stubFor(
         get(urlMatching("^/api/v1/namespaces/default/configmaps.*"))
             .withPostServeAction("semaphore", watchParams)
             .withQueryParam("watch", equalTo("true"))
@@ -175,20 +168,20 @@ public class KubernetesInformerCreatorTest {
     getCount.acquire(2);
     watchCount.acquire(2);
 
-    verify(
+    apiServer.verify(
         1,
         getRequestedFor(urlPathEqualTo("/api/v1/pods")).withQueryParam("watch", equalTo("false")));
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/api/v1/pods")).withQueryParam("watch", equalTo("true")));
-    verify(
+    apiServer.verify(
         1,
         getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/configmaps"))
             .withQueryParam("watch", equalTo("false")));
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/configmaps"))
             .withQueryParam("watch", equalTo("true")));
 
-    assertEquals(1, new Lister<>(podInformer.getIndexer()).list().size());
-    assertEquals(1, new Lister<>(configMapInformer.getIndexer()).list().size());
+    assertThat(new Lister<>(podInformer.getIndexer()).list()).hasSize(1);
+    assertThat(new Lister<>(configMapInformer.getIndexer()).list()).hasSize(1);
   }
 }

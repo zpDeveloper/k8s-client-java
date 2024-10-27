@@ -17,59 +17,56 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.models.VersionInfo;
 import io.kubernetes.client.util.ClientBuilder;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class VersionTest {
+class VersionTest {
 
   private ApiClient client;
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(options().dynamicPort()).build();
 
-  @Before
-  public void setup() throws IOException {
-    client = new ClientBuilder().setBasePath("http://localhost:" + wireMockRule.port()).build();
+  @BeforeEach
+  void setup() {
+    client = new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
   }
 
   @Test
-  public void testUrl() throws InterruptedException, IOException, ApiException {
+  void url() throws IOException, ApiException {
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/version/"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody("{}")));
+                    .withBody("{\"gitVersion\":\"\",\"gitCommit\":\"\",\"major\":\"\",\"minor\":\"\"," +
+                            "\"goVersion\":\"\",\"buildDate\":\"\",\"compiler\":\"\"," +
+                            "\"gitTreeState\":\"\",\"platform\":\"\"}")));
 
     Version versionUtil = new Version(client);
-    try {
-      VersionInfo versionInfo = versionUtil.getVersion();
-    } catch (ApiException ex) {
+    assertThat(versionUtil.getVersion()).isNotNull();
 
-    }
-
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/version/"))
-            .withHeader("Content-Type", equalTo("application/json"))
             .withHeader("Accept", equalTo("application/json")));
   }
 
   @Test
-  public void testFailure() throws InterruptedException, IOException, ApiException {
+  void failure() throws IOException, ApiException {
 
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/version/"))
             .willReturn(
                 aResponse()
@@ -78,18 +75,15 @@ public class VersionTest {
                     .withBody("{}")));
 
     Version versionUtil = new Version(client);
-    boolean thrown = false;
     try {
-      VersionInfo versionInfo = versionUtil.getVersion();
+      versionUtil.getVersion();
+      failBecauseExceptionWasNotThrown(ApiException.class);
     } catch (ApiException ex) {
-      assertEquals(401, ex.getCode());
-      thrown = true;
+      assertThat(ex.getCode()).isEqualTo(401);
     }
-    assertEquals(thrown, true);
 
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/version/"))
-            .withHeader("Content-Type", equalTo("application/json"))
             .withHeader("Accept", equalTo("application/json")));
   }
 }

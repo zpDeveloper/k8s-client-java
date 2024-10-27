@@ -1,34 +1,90 @@
-/*
-Copyright 2022 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package io.kubernetes.client.openapi.models;
 
+import java.lang.SuppressWarnings;
+import io.kubernetes.client.fluent.BaseFluent;
 import io.kubernetes.client.custom.Quantity;
-import io.kubernetes.client.fluent.Fluent;
+import java.lang.Object;
+import java.lang.String;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
-/** Generated */
-public interface V1OverheadFluent<A extends V1OverheadFluent<A>> extends Fluent<A> {
-  public A addToPodFixed(String key, Quantity value);
+/**
+ * Generated
+ */
+@SuppressWarnings("unchecked")
+public class V1OverheadFluent<A extends V1OverheadFluent<A>> extends BaseFluent<A>{
+  public V1OverheadFluent() {
+  }
+  
+  public V1OverheadFluent(V1Overhead instance) {
+    this.copyInstance(instance);
+  }
+  private Map<String,Quantity> podFixed;
+  
+  protected void copyInstance(V1Overhead instance) {
+    instance = (instance != null ? instance : new V1Overhead());
+    if (instance != null) {
+          this.withPodFixed(instance.getPodFixed());
+        }
+  }
+  
+  public A addToPodFixed(String key,Quantity value) {
+    if(this.podFixed == null && key != null && value != null) { this.podFixed = new LinkedHashMap(); }
+    if(key != null && value != null) {this.podFixed.put(key, value);} return (A)this;
+  }
+  
+  public A addToPodFixed(Map<String,Quantity> map) {
+    if(this.podFixed == null && map != null) { this.podFixed = new LinkedHashMap(); }
+    if(map != null) { this.podFixed.putAll(map);} return (A)this;
+  }
+  
+  public A removeFromPodFixed(String key) {
+    if(this.podFixed == null) { return (A) this; }
+    if(key != null && this.podFixed != null) {this.podFixed.remove(key);} return (A)this;
+  }
+  
+  public A removeFromPodFixed(Map<String,Quantity> map) {
+    if(this.podFixed == null) { return (A) this; }
+    if(map != null) { for(Object key : map.keySet()) {if (this.podFixed != null){this.podFixed.remove(key);}}} return (A)this;
+  }
+  
+  public Map<String,Quantity> getPodFixed() {
+    return this.podFixed;
+  }
+  
+  public <K,V>A withPodFixed(Map<String,Quantity> podFixed) {
+    if (podFixed == null) {
+      this.podFixed = null;
+    } else {
+      this.podFixed = new LinkedHashMap(podFixed);
+    }
+    return (A) this;
+  }
+  
+  public boolean hasPodFixed() {
+    return this.podFixed != null;
+  }
+  
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    V1OverheadFluent that = (V1OverheadFluent) o;
+    if (!java.util.Objects.equals(podFixed, that.podFixed)) return false;
+    return true;
+  }
+  
+  public int hashCode() {
+    return java.util.Objects.hash(podFixed,  super.hashCode());
+  }
+  
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    if (podFixed != null && !podFixed.isEmpty()) { sb.append("podFixed:"); sb.append(podFixed); }
+    sb.append("}");
+    return sb.toString();
+  }
+  
 
-  public A addToPodFixed(Map<String, Quantity> map);
-
-  public A removeFromPodFixed(String key);
-
-  public A removeFromPodFixed(Map<String, Quantity> map);
-
-  public Map<String, Quantity> getPodFixed();
-
-  public <K, V> A withPodFixed(Map<String, Quantity> podFixed);
-
-  public Boolean hasPodFixed();
 }

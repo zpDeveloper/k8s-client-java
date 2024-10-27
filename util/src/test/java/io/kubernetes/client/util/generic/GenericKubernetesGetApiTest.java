@@ -13,32 +13,34 @@ limitations under the License.
 package io.kubernetes.client.util.generic;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.JSON;
 import io.kubernetes.client.openapi.models.V1Job;
 import io.kubernetes.client.openapi.models.V1JobList;
 import io.kubernetes.client.openapi.models.V1Status;
 import io.kubernetes.client.util.ClientBuilder;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class GenericKubernetesGetApiTest {
+class GenericKubernetesGetApiTest {
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(8181);
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  private JSON json = new JSON();
   private GenericKubernetesApi<V1Job, V1JobList> jobClient; // non-core built-in resource
   private GenericKubernetesApi<FooCustomResource, FooCustomResourceList>
       fooClient; // custom resource
 
-  @Before
-  public void setup() {
-    ApiClient apiClient = new ClientBuilder().setBasePath("http://localhost:" + 8181).build();
+  @BeforeEach
+  void setup() {
+    ApiClient apiClient =
+        new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
     jobClient =
         new GenericKubernetesApi<>(V1Job.class, V1JobList.class, "batch", "v1", "jobs", apiClient);
     fooClient =
@@ -52,43 +54,43 @@ public class GenericKubernetesGetApiTest {
   }
 
   @Test
-  public void returningNormalObjectShouldWork() {
+  void returningNormalObjectShouldWork() {
     V1Job job = new V1Job().kind("Job");
     FooCustomResource foo = new FooCustomResource();
 
-    stubFor(
+    apiServer.stubFor(
         get(urlEqualTo("/apis/batch/v1/namespaces/default/jobs/noxu"))
-            .willReturn(aResponse().withStatus(200).withBody(json.serialize(job))));
-    stubFor(
+            .willReturn(aResponse().withStatus(200).withBody(JSON.serialize(job))));
+    apiServer.stubFor(
         get(urlEqualTo("/apis/example.io/v1/namespaces/default/foos/noxu"))
-            .willReturn(aResponse().withStatus(200).withBody(json.serialize(foo))));
+            .willReturn(aResponse().withStatus(200).withBody(JSON.serialize(foo))));
 
     KubernetesApiResponse<V1Job> jobResp = jobClient.get("default", "noxu");
     KubernetesApiResponse<FooCustomResource> fooResp = fooClient.get("default", "noxu");
 
-    assertEquals(job, jobResp.getObject());
-    assertEquals(foo, fooResp.getObject());
-    assertNull(jobResp.getStatus());
-    assertNull(fooResp.getStatus());
+    assertThat(jobResp.getObject()).isEqualTo(job);
+    assertThat(fooResp.getObject()).isEqualTo(foo);
+    assertThat(jobResp.getStatus()).isNull();
+    assertThat(fooResp.getStatus()).isNull();
   }
 
   @Test
-  public void returningStatusShouldWork() {
+  void returningStatusShouldWork() {
     V1Status forbiddenStatus = new V1Status().kind("Status");
 
-    stubFor(
+    apiServer.stubFor(
         get(urlEqualTo("/apis/batch/v1/namespaces/default/jobs/noxu"))
-            .willReturn(aResponse().withStatus(403).withBody(json.serialize(forbiddenStatus))));
-    stubFor(
+            .willReturn(aResponse().withStatus(403).withBody(JSON.serialize(forbiddenStatus))));
+    apiServer.stubFor(
         get(urlEqualTo("/apis/example.io/v1/namespaces/default/foos/noxu"))
-            .willReturn(aResponse().withStatus(403).withBody(json.serialize(forbiddenStatus))));
+            .willReturn(aResponse().withStatus(403).withBody(JSON.serialize(forbiddenStatus))));
 
     KubernetesApiResponse<V1Job> jobResp = jobClient.get("default", "noxu");
     KubernetesApiResponse<FooCustomResource> fooResp = fooClient.get("default", "noxu");
 
-    assertEquals(forbiddenStatus, jobResp.getStatus());
-    assertEquals(forbiddenStatus, fooResp.getStatus());
-    assertNull(jobResp.getObject());
-    assertNull(fooResp.getObject());
+    assertThat(jobResp.getStatus()).isEqualTo(forbiddenStatus);
+    assertThat(fooResp.getStatus()).isEqualTo(forbiddenStatus);
+    assertThat(jobResp.getObject()).isNull();
+    assertThat(fooResp.getObject()).isNull();
   }
 }

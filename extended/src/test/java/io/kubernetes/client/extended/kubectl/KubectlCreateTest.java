@@ -13,9 +13,10 @@ limitations under the License.
 package io.kubernetes.client.extended.kubectl;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertNotNull;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.extended.kubectl.exception.KubectlException;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
@@ -26,11 +27,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class KubectlCreateTest {
+class KubectlCreateTest {
 
   private static final String DISCOVERY_API =
       new File(KubectlCreateTest.class.getClassLoader().getResource("discovery-api.json").getPath())
@@ -51,34 +52,36 @@ public class KubectlCreateTest {
 
   private ApiClient apiClient;
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(8384);
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  @Before
-  public void setup() throws IOException {
-    apiClient = new ClientBuilder().setBasePath("http://localhost:" + 8384).build();
+  @BeforeEach
+  void setup() {
+    apiClient = new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
   }
 
   @Test
-  public void testCreateConfigMap() throws KubectlException, IOException {
-    wireMockRule.stubFor(
+  void createConfigMap() throws KubectlException, IOException {
+    apiServer.stubFor(
         post(urlPathEqualTo("/api/v1/namespaces/foo/configmaps"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withBody("{\"metadata\":{\"name\":\"bar\",\"namespace\":\"foo\"}}")));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withBody(new String(Files.readAllBytes(Paths.get(DISCOVERY_API))))));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/apis"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withBody(new String(Files.readAllBytes(Paths.get(DISCOVERY_APIS))))));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1"))
             .willReturn(
                 aResponse()
@@ -100,7 +103,7 @@ public class KubectlCreateTest {
                               }
                             }))
                 .execute();
-    wireMockRule.verify(1, postRequestedFor(urlPathEqualTo("/api/v1/namespaces/foo/configmaps")));
-    assertNotNull(configMap);
+    apiServer.verify(1, postRequestedFor(urlPathEqualTo("/api/v1/namespaces/foo/configmaps")));
+    assertThat(configMap).isNotNull();
   }
 }

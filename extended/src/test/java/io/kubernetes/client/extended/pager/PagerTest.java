@@ -16,15 +16,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Namespace;
@@ -39,11 +36,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PagerTest {
+class PagerTest {
 
   private ApiClient client;
   private static final String LIST_PAGE0_FILE_PATH =
@@ -61,19 +58,22 @@ public class PagerTest {
   private static final String STATUS_BAD_TOKEN_FILE_PATH =
       new File(PagerTest.class.getClassLoader().getResource("bad-token-status.json").getPath())
           .toString();
-  @Rule public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
 
-  @Before
-  public void setup() throws IOException {
-    client = new ClientBuilder().setBasePath("http://localhost:" + wireMockRule.port()).build();
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
+
+  @BeforeEach
+  void setup() {
+    client = new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
   }
 
   @Test
-  public void testIteratorForEmptyList() throws IOException {
+  void iteratorForEmptyList() throws IOException {
     String namespaceListPage0Str = new String(Files.readAllBytes(Paths.get(LIST_PAGE0_FILE_PATH)));
     CoreV1Api api = new CoreV1Api(client);
 
-    stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces"))
             .willReturn(
                 aResponse()
@@ -85,8 +85,7 @@ public class PagerTest {
         new Pager<V1Namespace, V1NamespaceList>(
             (Pager.PagerParams param) -> {
               try {
-                return api.listNamespaceCall(
-                    null, null, null, null, null, null, null, null, null, null, null);
+                return api.listNamespace().buildCall(null);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -95,16 +94,16 @@ public class PagerTest {
             1,
             V1NamespaceList.class);
     Iterator<V1Namespace> it = pager.iterator();
-    assertFalse("Iterator should be empty.", it.hasNext());
+    assertThat(it).isExhausted();
   }
 
   @Test
-  public void testPaginationForNamespaceListWithSuccessThreadSafely() throws IOException {
+  void paginationForNamespaceListWithSuccessThreadSafely() throws Exception {
     String namespaceListPage1Str = new String(Files.readAllBytes(Paths.get(LIST_PAGE1_FILE_PATH)));
     String namespaceListPage2Str = new String(Files.readAllBytes(Paths.get(LIST_PAGE2_FILE_PATH)));
     CoreV1Api api = new CoreV1Api(client);
 
-    stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("limit", equalTo("1"))
             .willReturn(
@@ -112,7 +111,7 @@ public class PagerTest {
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
                     .withBody(namespaceListPage1Str)));
-    stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("limit", equalTo("1"))
             .withQueryParam("continue", equalTo("c1"))
@@ -130,18 +129,10 @@ public class PagerTest {
         new Pager<V1Namespace, V1NamespaceList>(
             (Pager.PagerParams param) -> {
               try {
-                return api.listNamespaceCall(
-                    null,
-                    null,
-                    param.getContinueToken(),
-                    null,
-                    null,
-                    param.getLimit(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
+                return api.listNamespace()
+                        ._continue(param.getContinueToken())
+                        .limit(param.getLimit())
+                        .buildCall(null);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -155,32 +146,28 @@ public class PagerTest {
           () -> {
             int size = 0;
             for (V1Namespace namespace : pager) {
-              assertEquals("default", namespace.getMetadata().getName());
+              assertThat(namespace.getMetadata().getName()).isEqualTo("default");
               size++;
             }
-            assertEquals(2, size);
+            assertThat(size).isEqualTo(2);
             latch.countDown();
           });
     }
 
-    try {
-      latch.await(5, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      fail("timed out waiting for pager finished");
-    }
+    latch.await(5, TimeUnit.SECONDS);
 
-    verify(
+    apiServer.verify(
         2 * threads,
         getRequestedFor(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("limit", equalTo("1")));
   }
 
   @Test
-  public void testPaginationForNamespaceListWithBadTokenFailure() throws IOException {
+  void paginationForNamespaceListWithBadTokenFailure() throws IOException {
     String status400Str = new String(Files.readAllBytes(Paths.get(STATUS_BAD_TOKEN_FILE_PATH)));
     CoreV1Api api = new CoreV1Api(client);
 
-    stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("limit", equalTo("1"))
             .willReturn(
@@ -192,18 +179,10 @@ public class PagerTest {
         new Pager<V1Namespace, V1NamespaceList>(
             (Pager.PagerParams param) -> {
               try {
-                return api.listNamespaceCall(
-                    null,
-                    null,
-                    param.getContinueToken(),
-                    null,
-                    null,
-                    param.getLimit(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
+                return api.listNamespace()
+                        ._continue(param.getContinueToken())
+                        .limit(param.getLimit())
+                        .buildCall(null);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -211,27 +190,27 @@ public class PagerTest {
             client,
             1,
             V1NamespaceList.class);
-    int count = 0;
+
     try {
       for (V1Namespace namespace : pager) {
-        assertEquals("default", namespace.getMetadata().getName());
-        count++;
+        assertThat(namespace.getMetadata().getName()).isEqualTo("default");
       }
+      failBecauseExceptionWasNotThrown(Exception.class);
     } catch (Exception e) {
-      assertEquals(status400Str, e.getMessage());
+      assertThat(e.getMessage()).isEqualTo(status400Str);
     }
 
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("limit", equalTo("1")));
   }
 
   @Test
-  public void testPaginationForNamespaceListWithFieldSelectorFailure() throws IOException {
+  void paginationForNamespaceListWithFieldSelectorFailure() throws IOException {
     String status400Str = new String(Files.readAllBytes(Paths.get(LIST_STATUS_FILE_PATH)));
     CoreV1Api api = new CoreV1Api(client);
 
-    stubFor(
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("fieldSelector", equalTo("metadata.name=default"))
             .withQueryParam("limit", equalTo("1"))
@@ -244,18 +223,11 @@ public class PagerTest {
         new Pager<V1Namespace, V1NamespaceList>(
             (Pager.PagerParams param) -> {
               try {
-                return api.listNamespaceCall(
-                    null,
-                    null,
-                    param.getContinueToken(),
-                    "metadata.name=default",
-                    null,
-                    param.getLimit(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
+                return api.listNamespace()
+                        ._continue(param.getContinueToken())
+                        .limit(param.getLimit())
+                        .fieldSelector("metadata.name=default")
+                        .buildCall(null);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -267,13 +239,13 @@ public class PagerTest {
     try {
       for (V1Namespace namespace : pager) {
         count++;
-        assertEquals("default", namespace.getMetadata().getName());
+        assertThat(namespace.getMetadata().getName()).isEqualTo("default");
       }
     } catch (Exception e) {
-      assertEquals(status400Str, e.getMessage());
+      assertThat(e.getMessage()).isEqualTo(status400Str);
     }
 
-    verify(
+    apiServer.verify(
         getRequestedFor(urlPathEqualTo("/api/v1/namespaces"))
             .withQueryParam("fieldSelector", equalTo("metadata.name=default"))
             .withQueryParam("limit", equalTo("1")));

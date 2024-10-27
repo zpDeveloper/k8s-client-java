@@ -13,49 +13,56 @@ limitations under the License.
 package io.kubernetes.client.extended.kubectl;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.kubernetes.client.extended.kubectl.exception.KubectlException;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.models.V1Node;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.ModelMapper;
-import java.io.IOException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class KubectlLabelTest {
+class KubectlLabelTest {
 
   private ApiClient apiClient;
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(8384);
+  @RegisterExtension
+  static WireMockExtension apiServer =
+      WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  @Before
-  public void setup() throws IOException {
+  @BeforeEach
+  void setup() {
     ModelMapper.addModelMap("", "v1", "Pod", "pods", true, V1Pod.class);
     ModelMapper.addModelMap("", "v1", "Node", "nodes", false, V1Node.class);
-    apiClient = new ClientBuilder().setBasePath("http://localhost:" + 8384).build();
+    apiClient = new ClientBuilder().setBasePath("http://localhost:" + apiServer.getPort()).build();
   }
 
   @Test
-  public void testKubectlLabelNamespacedResourceShouldWork() throws KubectlException {
-    wireMockRule.stubFor(
+  void kubectlLabelNamespacedResourceShouldWork() throws KubectlException {
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withBody("{\"metadata\":{\"name\":\"foo\",\"namespace\":\"default\"}}")));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         put(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
+            .withRequestBody(
+                matchingJsonPath(
+                    "$.metadata.labels", equalToJson("{ \"k1\": \"v1\", \"k2\": \"v2\" }")))
             .willReturn(
                 aResponse()
                     .withStatus(200)
@@ -69,46 +76,82 @@ public class KubectlLabelTest {
             .addLabel("k1", "v1")
             .addLabel("k2", "v2")
             .execute();
-    wireMockRule.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
-    wireMockRule.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
-    assertNotNull(labelledPod);
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+    assertThat(labelledPod).isNotNull();
   }
 
   @Test
-  public void testKubectlLabelNamespacedResourceReceiveForbiddenShouldThrowException()
-      throws KubectlException {
-    wireMockRule.stubFor(
+  void kubectlDeleteLabelNamespacedResourceShouldWork() throws KubectlException {
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withBody("{\"metadata\":{\"name\":\"foo\",\"namespace\":\"default\"}}")));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         put(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
-            .willReturn(aResponse().withStatus(403).withBody("{\"metadata\":{}}")));
-    assertThrows(
-        KubectlException.class,
-        () -> {
-          Kubectl.label(V1Pod.class)
-              .apiClient(apiClient)
-              .skipDiscovery()
-              .namespace("default")
-              .name("foo")
-              .addLabel("k1", "v1")
-              .addLabel("k2", "v2")
-              .execute();
-        });
-    wireMockRule.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
-    wireMockRule.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+            .withRequestBody(
+                matchingJsonPath("$.metadata.labels", equalToJson("{}")))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody("{\"metadata\":{\"name\":\"foo\",\"namespace\":\"default\"}}")));
+
+    V1Pod unlabelledPod =
+        Kubectl.label(V1Pod.class)
+            .apiClient(apiClient)
+            .skipDiscovery()
+            .namespace("default")
+            .name("foo")
+            .deleteLabel("k1")
+            .execute();
+
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+    assertThat(unlabelledPod).isNotNull();
   }
 
   @Test
-  public void testKubectlLabelClusterResourceShouldWork() throws KubectlException {
-    wireMockRule.stubFor(
+  void kubectlLabelNamespacedResourceReceiveForbiddenShouldThrowException()
+      throws KubectlException {
+    apiServer.stubFor(
+        get(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody("{\"metadata\":{\"name\":\"foo\",\"namespace\":\"default\"}}")));
+    apiServer.stubFor(
+        put(urlPathEqualTo("/api/v1/namespaces/default/pods/foo"))
+            .withRequestBody(
+                matchingJsonPath(
+                    "$.metadata.labels", equalToJson("{ \"k1\": \"v1\", \"k2\": \"v2\" }")))
+            .willReturn(aResponse().withStatus(403).withBody("{\"metadata\":{}}")));
+    assertThatThrownBy(
+            () ->
+                Kubectl.label(V1Pod.class)
+                    .apiClient(apiClient)
+                    .skipDiscovery()
+                    .namespace("default")
+                    .name("foo")
+                    .addLabel("k1", "v1")
+                    .addLabel("k2", "v2")
+                    .execute())
+        .isInstanceOf(KubectlException.class);
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/namespaces/default/pods/foo")));
+  }
+
+  @Test
+  void kubectlLabelClusterResourceShouldWork() throws KubectlException {
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/nodes/foo"))
             .willReturn(aResponse().withStatus(200).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         put(urlPathEqualTo("/api/v1/nodes/foo"))
+            .withRequestBody(
+                matchingJsonPath(
+                    "$.metadata.labels", equalToJson("{ \"k1\": \"v1\", \"k2\": \"v2\" }")))
             .willReturn(aResponse().withStatus(200).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
     V1Node labelledNode =
         Kubectl.label(V1Node.class)
@@ -118,48 +161,71 @@ public class KubectlLabelTest {
             .addLabel("k1", "v1")
             .addLabel("k2", "v2")
             .execute();
-    wireMockRule.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
-    wireMockRule.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
-    assertNotNull(labelledNode);
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+    assertThat(labelledNode).isNotNull();
   }
 
   @Test
-  public void testKubectlLabelClusterResourceReceiveForbiddenShouldThrowException()
-      throws KubectlException {
-    wireMockRule.stubFor(
+  void kubectlDeleteLabelClusterResourceShouldWork() throws KubectlException {
+    apiServer.stubFor(
         get(urlPathEqualTo("/api/v1/nodes/foo"))
             .willReturn(aResponse().withStatus(200).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
-    wireMockRule.stubFor(
+    apiServer.stubFor(
         put(urlPathEqualTo("/api/v1/nodes/foo"))
-            .willReturn(aResponse().withStatus(403).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
-    assertThrows(
-        KubectlException.class,
-        () -> {
-          Kubectl.label(V1Node.class)
-              .apiClient(apiClient)
-              .skipDiscovery()
-              .name("foo")
-              .addLabel("k1", "v1")
-              .addLabel("k2", "v2")
-              .execute();
-        });
-    wireMockRule.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
-    wireMockRule.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+            .withRequestBody(
+                matchingJsonPath("$.metadata.labels", equalToJson("{}")))
+            .willReturn(aResponse().withStatus(200).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
+
+    V1Node unlabelledNode =
+        Kubectl.label(V1Node.class)
+            .apiClient(apiClient)
+            .skipDiscovery()
+            .name("foo")
+            .deleteLabel("k1")
+            .execute();
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+    assertThat(unlabelledNode).isNotNull();
   }
 
   @Test
-  public void testMissingArgumentsShouldFail() throws KubectlException {
+  void kubectlLabelClusterResourceReceiveForbiddenShouldThrowException()
+      throws KubectlException {
+    apiServer.stubFor(
+        get(urlPathEqualTo("/api/v1/nodes/foo"))
+            .willReturn(aResponse().withStatus(200).withBody("{\"metadata\":{\"name\":\"foo\"}}")));
+    apiServer.stubFor(
+        put(urlPathEqualTo("/api/v1/nodes/foo"))
+            .withRequestBody(
+                matchingJsonPath(
+                    "$.metadata.labels", equalToJson("{ \"k1\": \"v1\", \"k2\": \"v2\" }")))
+            .willReturn(aResponse().withStatus(403).withBody("{\"metadata\":{}}")));
+    assertThatThrownBy(
+            () ->
+                Kubectl.label(V1Node.class)
+                    .apiClient(apiClient)
+                    .skipDiscovery()
+                    .name("foo")
+                    .addLabel("k1", "v1")
+                    .addLabel("k2", "v2")
+                    .execute())
+        .isInstanceOf(KubectlException.class);
+    apiServer.verify(1, getRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+    apiServer.verify(1, putRequestedFor(urlPathEqualTo("/api/v1/nodes/foo")));
+  }
 
-    assertThrows(
-        KubectlException.class,
-        () -> {
-          Kubectl.label(V1Node.class)
-              .apiClient(apiClient)
-              .skipDiscovery()
-              // .name("foo") # missing name
-              .addLabel("k1", "v1")
-              .addLabel("k2", "v2")
-              .execute();
-        });
+  @Test
+  void missingArgumentsShouldFail() throws KubectlException {
+    assertThatThrownBy(
+            () ->
+                Kubectl.label(V1Node.class)
+                    .apiClient(apiClient)
+                    .skipDiscovery()
+                    // .name("foo") # missing name
+                    .addLabel("k1", "v1")
+                    .addLabel("k2", "v2")
+                    .execute())
+        .isInstanceOf(KubectlException.class);
   }
 }

@@ -12,24 +12,25 @@ limitations under the License.
 */
 package io.kubernetes.client.util;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 import io.kubernetes.client.openapi.ApiException;
 import java.net.HttpURLConnection;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RetryUtilsTest {
+@ExtendWith(MockitoExtension.class)
+class RetryUtilsTest {
 
   @Mock private ApiInvocation apiInvocation;
 
   @Test
-  public void testRetryUponConflictShouldWorkWithinMaxRetry() throws ApiException {
+  void retryUponConflictShouldWorkWithinMaxRetry() throws ApiException {
     AtomicInteger conflictCount = new AtomicInteger(2);
     Object expectedReturn = new Object();
     when(apiInvocation.call())
@@ -43,11 +44,11 @@ public class RetryUtilsTest {
             });
 
     Object actualReturn = RetryUtils.retryUponConflict(apiInvocation, 3);
-    assertEquals(expectedReturn, actualReturn);
+    assertThat(actualReturn).isEqualTo(expectedReturn);
   }
 
   @Test
-  public void testRetryUponConflictShouldFailExceedingMaxRetry() throws ApiException {
+  void retryUponConflictShouldFailExceedingMaxRetry() throws ApiException {
     AtomicInteger conflictCount = new AtomicInteger(3);
     Object expectedReturn = new Object();
     when(apiInvocation.call())
@@ -60,13 +61,14 @@ public class RetryUtilsTest {
               return expectedReturn;
             });
 
-    assertThrows(ApiException.class, () -> RetryUtils.retryUponConflict(apiInvocation, 3));
+    assertThatThrownBy(() -> RetryUtils.retryUponConflict(apiInvocation, 3))
+        .isInstanceOf(ApiException.class);
   }
 
   @Test
-  public void testRetryUponConflictShouldThrowNonConflictException() throws ApiException {
+  void retryUponConflictShouldThrowNonConflictException() throws ApiException {
     when(apiInvocation.call()).thenThrow(IllegalArgumentException.class);
-    assertThrows(
-        IllegalArgumentException.class, () -> RetryUtils.retryUponConflict(apiInvocation, 3));
+    assertThatThrownBy(() -> RetryUtils.retryUponConflict(apiInvocation, 3))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }

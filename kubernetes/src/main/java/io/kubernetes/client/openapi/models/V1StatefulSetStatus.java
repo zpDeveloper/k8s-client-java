@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -12,85 +12,100 @@ limitations under the License.
 */
 package io.kubernetes.client.openapi.models;
 
-import com.google.gson.annotations.SerializedName;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.kubernetes.client.openapi.models.V1StatefulSetCondition;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/** StatefulSetStatus represents the current state of a StatefulSet. */
-@ApiModel(description = "StatefulSetStatus represents the current state of a StatefulSet.")
-@javax.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2022-09-15T17:00:37.921Z[Etc/UTC]")
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.kubernetes.client.openapi.JSON;
+
+/**
+ * StatefulSetStatus represents the current state of a StatefulSet.
+ */
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-04T19:37:38.574271Z[Etc/UTC]", comments = "Generator version: 7.6.0")
 public class V1StatefulSetStatus {
   public static final String SERIALIZED_NAME_AVAILABLE_REPLICAS = "availableReplicas";
-
   @SerializedName(SERIALIZED_NAME_AVAILABLE_REPLICAS)
   private Integer availableReplicas;
 
   public static final String SERIALIZED_NAME_COLLISION_COUNT = "collisionCount";
-
   @SerializedName(SERIALIZED_NAME_COLLISION_COUNT)
   private Integer collisionCount;
 
   public static final String SERIALIZED_NAME_CONDITIONS = "conditions";
-
   @SerializedName(SERIALIZED_NAME_CONDITIONS)
-  private List<V1StatefulSetCondition> conditions = null;
+  private List<V1StatefulSetCondition> conditions = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_CURRENT_REPLICAS = "currentReplicas";
-
   @SerializedName(SERIALIZED_NAME_CURRENT_REPLICAS)
   private Integer currentReplicas;
 
   public static final String SERIALIZED_NAME_CURRENT_REVISION = "currentRevision";
-
   @SerializedName(SERIALIZED_NAME_CURRENT_REVISION)
   private String currentRevision;
 
   public static final String SERIALIZED_NAME_OBSERVED_GENERATION = "observedGeneration";
-
   @SerializedName(SERIALIZED_NAME_OBSERVED_GENERATION)
   private Long observedGeneration;
 
   public static final String SERIALIZED_NAME_READY_REPLICAS = "readyReplicas";
-
   @SerializedName(SERIALIZED_NAME_READY_REPLICAS)
   private Integer readyReplicas;
 
   public static final String SERIALIZED_NAME_REPLICAS = "replicas";
-
   @SerializedName(SERIALIZED_NAME_REPLICAS)
   private Integer replicas;
 
   public static final String SERIALIZED_NAME_UPDATE_REVISION = "updateRevision";
-
   @SerializedName(SERIALIZED_NAME_UPDATE_REVISION)
   private String updateRevision;
 
   public static final String SERIALIZED_NAME_UPDATED_REPLICAS = "updatedReplicas";
-
   @SerializedName(SERIALIZED_NAME_UPDATED_REPLICAS)
   private Integer updatedReplicas;
 
-  public V1StatefulSetStatus availableReplicas(Integer availableReplicas) {
+  public V1StatefulSetStatus() {
+  }
 
+  public V1StatefulSetStatus availableReplicas(Integer availableReplicas) {
     this.availableReplicas = availableReplicas;
     return this;
   }
 
-  /**
-   * Total number of available pods (ready for at least minReadySeconds) targeted by this
-   * statefulset.
-   *
+   /**
+   * Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset.
    * @return availableReplicas
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getAvailableReplicas() {
     return availableReplicas;
   }
@@ -99,23 +114,17 @@ public class V1StatefulSetStatus {
     this.availableReplicas = availableReplicas;
   }
 
-  public V1StatefulSetStatus collisionCount(Integer collisionCount) {
 
+  public V1StatefulSetStatus collisionCount(Integer collisionCount) {
     this.collisionCount = collisionCount;
     return this;
   }
 
-  /**
-   * collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller
-   * uses this field as a collision avoidance mechanism when it needs to create the name for the
-   * newest ControllerRevision.
-   *
+   /**
+   * collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
    * @return collisionCount
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getCollisionCount() {
     return collisionCount;
   }
@@ -124,8 +133,8 @@ public class V1StatefulSetStatus {
     this.collisionCount = collisionCount;
   }
 
-  public V1StatefulSetStatus conditions(List<V1StatefulSetCondition> conditions) {
 
+  public V1StatefulSetStatus conditions(List<V1StatefulSetCondition> conditions) {
     this.conditions = conditions;
     return this;
   }
@@ -138,14 +147,11 @@ public class V1StatefulSetStatus {
     return this;
   }
 
-  /**
+   /**
    * Represents the latest available observations of a statefulset&#39;s current state.
-   *
    * @return conditions
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value = "Represents the latest available observations of a statefulset's current state.")
+  **/
+  @jakarta.annotation.Nullable
   public List<V1StatefulSetCondition> getConditions() {
     return conditions;
   }
@@ -154,22 +160,17 @@ public class V1StatefulSetStatus {
     this.conditions = conditions;
   }
 
-  public V1StatefulSetStatus currentReplicas(Integer currentReplicas) {
 
+  public V1StatefulSetStatus currentReplicas(Integer currentReplicas) {
     this.currentReplicas = currentReplicas;
     return this;
   }
 
-  /**
-   * currentReplicas is the number of Pods created by the StatefulSet controller from the
-   * StatefulSet version indicated by currentRevision.
-   *
+   /**
+   * currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.
    * @return currentReplicas
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getCurrentReplicas() {
     return currentReplicas;
   }
@@ -178,22 +179,17 @@ public class V1StatefulSetStatus {
     this.currentReplicas = currentReplicas;
   }
 
-  public V1StatefulSetStatus currentRevision(String currentRevision) {
 
+  public V1StatefulSetStatus currentRevision(String currentRevision) {
     this.currentRevision = currentRevision;
     return this;
   }
 
-  /**
-   * currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods
-   * in the sequence [0,currentReplicas).
-   *
+   /**
+   * currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).
    * @return currentRevision
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).")
+  **/
+  @jakarta.annotation.Nullable
   public String getCurrentRevision() {
     return currentRevision;
   }
@@ -202,22 +198,17 @@ public class V1StatefulSetStatus {
     this.currentRevision = currentRevision;
   }
 
-  public V1StatefulSetStatus observedGeneration(Long observedGeneration) {
 
+  public V1StatefulSetStatus observedGeneration(Long observedGeneration) {
     this.observedGeneration = observedGeneration;
     return this;
   }
 
-  /**
-   * observedGeneration is the most recent generation observed for this StatefulSet. It corresponds
-   * to the StatefulSet&#39;s generation, which is updated on mutation by the API Server.
-   *
+   /**
+   * observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet&#39;s generation, which is updated on mutation by the API Server.
    * @return observedGeneration
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet's generation, which is updated on mutation by the API Server.")
+  **/
+  @jakarta.annotation.Nullable
   public Long getObservedGeneration() {
     return observedGeneration;
   }
@@ -226,21 +217,17 @@ public class V1StatefulSetStatus {
     this.observedGeneration = observedGeneration;
   }
 
-  public V1StatefulSetStatus readyReplicas(Integer readyReplicas) {
 
+  public V1StatefulSetStatus readyReplicas(Integer readyReplicas) {
     this.readyReplicas = readyReplicas;
     return this;
   }
 
-  /**
+   /**
    * readyReplicas is the number of pods created for this StatefulSet with a Ready Condition.
-   *
    * @return readyReplicas
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "readyReplicas is the number of pods created for this StatefulSet with a Ready Condition.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getReadyReplicas() {
     return readyReplicas;
   }
@@ -249,20 +236,17 @@ public class V1StatefulSetStatus {
     this.readyReplicas = readyReplicas;
   }
 
-  public V1StatefulSetStatus replicas(Integer replicas) {
 
+  public V1StatefulSetStatus replicas(Integer replicas) {
     this.replicas = replicas;
     return this;
   }
 
-  /**
+   /**
    * replicas is the number of Pods created by the StatefulSet controller.
-   *
    * @return replicas
-   */
-  @ApiModelProperty(
-      required = true,
-      value = "replicas is the number of Pods created by the StatefulSet controller.")
+  **/
+  @jakarta.annotation.Nonnull
   public Integer getReplicas() {
     return replicas;
   }
@@ -271,22 +255,17 @@ public class V1StatefulSetStatus {
     this.replicas = replicas;
   }
 
-  public V1StatefulSetStatus updateRevision(String updateRevision) {
 
+  public V1StatefulSetStatus updateRevision(String updateRevision) {
     this.updateRevision = updateRevision;
     return this;
   }
 
-  /**
-   * updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in
-   * the sequence [replicas-updatedReplicas,replicas)
-   *
+   /**
+   * updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
    * @return updateRevision
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)")
+  **/
+  @jakarta.annotation.Nullable
   public String getUpdateRevision() {
     return updateRevision;
   }
@@ -295,22 +274,17 @@ public class V1StatefulSetStatus {
     this.updateRevision = updateRevision;
   }
 
-  public V1StatefulSetStatus updatedReplicas(Integer updatedReplicas) {
 
+  public V1StatefulSetStatus updatedReplicas(Integer updatedReplicas) {
     this.updatedReplicas = updatedReplicas;
     return this;
   }
 
-  /**
-   * updatedReplicas is the number of Pods created by the StatefulSet controller from the
-   * StatefulSet version indicated by updateRevision.
-   *
+   /**
+   * updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
    * @return updatedReplicas
-   */
-  @javax.annotation.Nullable
-  @ApiModelProperty(
-      value =
-          "updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.")
+  **/
+  @jakarta.annotation.Nullable
   public Integer getUpdatedReplicas() {
     return updatedReplicas;
   }
@@ -319,8 +293,10 @@ public class V1StatefulSetStatus {
     this.updatedReplicas = updatedReplicas;
   }
 
+
+
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -328,31 +304,21 @@ public class V1StatefulSetStatus {
       return false;
     }
     V1StatefulSetStatus v1StatefulSetStatus = (V1StatefulSetStatus) o;
-    return Objects.equals(this.availableReplicas, v1StatefulSetStatus.availableReplicas)
-        && Objects.equals(this.collisionCount, v1StatefulSetStatus.collisionCount)
-        && Objects.equals(this.conditions, v1StatefulSetStatus.conditions)
-        && Objects.equals(this.currentReplicas, v1StatefulSetStatus.currentReplicas)
-        && Objects.equals(this.currentRevision, v1StatefulSetStatus.currentRevision)
-        && Objects.equals(this.observedGeneration, v1StatefulSetStatus.observedGeneration)
-        && Objects.equals(this.readyReplicas, v1StatefulSetStatus.readyReplicas)
-        && Objects.equals(this.replicas, v1StatefulSetStatus.replicas)
-        && Objects.equals(this.updateRevision, v1StatefulSetStatus.updateRevision)
-        && Objects.equals(this.updatedReplicas, v1StatefulSetStatus.updatedReplicas);
+    return Objects.equals(this.availableReplicas, v1StatefulSetStatus.availableReplicas) &&
+        Objects.equals(this.collisionCount, v1StatefulSetStatus.collisionCount) &&
+        Objects.equals(this.conditions, v1StatefulSetStatus.conditions) &&
+        Objects.equals(this.currentReplicas, v1StatefulSetStatus.currentReplicas) &&
+        Objects.equals(this.currentRevision, v1StatefulSetStatus.currentRevision) &&
+        Objects.equals(this.observedGeneration, v1StatefulSetStatus.observedGeneration) &&
+        Objects.equals(this.readyReplicas, v1StatefulSetStatus.readyReplicas) &&
+        Objects.equals(this.replicas, v1StatefulSetStatus.replicas) &&
+        Objects.equals(this.updateRevision, v1StatefulSetStatus.updateRevision) &&
+        Objects.equals(this.updatedReplicas, v1StatefulSetStatus.updatedReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        availableReplicas,
-        collisionCount,
-        conditions,
-        currentReplicas,
-        currentRevision,
-        observedGeneration,
-        readyReplicas,
-        replicas,
-        updateRevision,
-        updatedReplicas);
+    return Objects.hash(availableReplicas, collisionCount, conditions, currentReplicas, currentRevision, observedGeneration, readyReplicas, replicas, updateRevision, updatedReplicas);
   }
 
   @Override
@@ -374,12 +340,135 @@ public class V1StatefulSetStatus {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("availableReplicas");
+    openapiFields.add("collisionCount");
+    openapiFields.add("conditions");
+    openapiFields.add("currentReplicas");
+    openapiFields.add("currentRevision");
+    openapiFields.add("observedGeneration");
+    openapiFields.add("readyReplicas");
+    openapiFields.add("replicas");
+    openapiFields.add("updateRevision");
+    openapiFields.add("updatedReplicas");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("replicas");
+  }
+
+ /**
+  * Validates the JSON Element and throws an exception if issues found
+  *
+  * @param jsonElement JSON Element
+  * @throws IOException if the JSON Element is invalid with respect to V1StatefulSetStatus
+  */
+  public static void validateJsonElement(JsonElement jsonElement) throws IOException {
+      if (jsonElement == null) {
+        if (!V1StatefulSetStatus.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in V1StatefulSetStatus is not found in the empty JSON string", V1StatefulSetStatus.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Map.Entry<String, JsonElement> entry : entries) {
+        if (!V1StatefulSetStatus.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `V1StatefulSetStatus` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : V1StatefulSetStatus.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+        }
+      }
+        JsonObject jsonObj = jsonElement.getAsJsonObject();
+      if (jsonObj.get("conditions") != null && !jsonObj.get("conditions").isJsonNull()) {
+        JsonArray jsonArrayconditions = jsonObj.getAsJsonArray("conditions");
+        if (jsonArrayconditions != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("conditions").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `conditions` to be an array in the JSON string but got `%s`", jsonObj.get("conditions").toString()));
+          }
+
+          // validate the optional field `conditions` (array)
+          for (int i = 0; i < jsonArrayconditions.size(); i++) {
+            V1StatefulSetCondition.validateJsonElement(jsonArrayconditions.get(i));
+          };
+        }
+      }
+      if ((jsonObj.get("currentRevision") != null && !jsonObj.get("currentRevision").isJsonNull()) && !jsonObj.get("currentRevision").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `currentRevision` to be a primitive type in the JSON string but got `%s`", jsonObj.get("currentRevision").toString()));
+      }
+      if ((jsonObj.get("updateRevision") != null && !jsonObj.get("updateRevision").isJsonNull()) && !jsonObj.get("updateRevision").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `updateRevision` to be a primitive type in the JSON string but got `%s`", jsonObj.get("updateRevision").toString()));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!V1StatefulSetStatus.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'V1StatefulSetStatus' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<V1StatefulSetStatus> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(V1StatefulSetStatus.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<V1StatefulSetStatus>() {
+           @Override
+           public void write(JsonWriter out, V1StatefulSetStatus value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public V1StatefulSetStatus read(JsonReader in) throws IOException {
+             JsonElement jsonElement = elementAdapter.read(in);
+             validateJsonElement(jsonElement);
+             return thisAdapter.fromJsonTree(jsonElement);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of V1StatefulSetStatus given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of V1StatefulSetStatus
+  * @throws IOException if the JSON string is invalid with respect to V1StatefulSetStatus
+  */
+  public static V1StatefulSetStatus fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, V1StatefulSetStatus.class);
+  }
+
+ /**
+  * Convert an instance of V1StatefulSetStatus to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }
